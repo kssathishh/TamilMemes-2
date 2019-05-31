@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+
+    <group android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/nav_home"
+            android:icon="@drawable/ic_menu_camera"
+            android:title="Home" />
+
+        <item android:title="Tamil Memes"
+            android:id="@+id/item_tamil_memes">
+            <menu
+                android:id="@+id/menu_tamil_meme">
+                <group android:checkableBehavior="single"
+                    android:id="@+id/group_tamil_meme"
+                    >
+
+                     <item
+                         android:id="@+id/nav_tamil_funny"
+                         android:icon="@drawable/funny"
+                         android:title="Funny / நகைச்சுவை"
+
+                         />
+            <item
+                    android:id="@+id/nav_politics"
+                    android:icon="@drawable/politics"
+                    android:title="Politics / அரசியல்" />
+
+                    <item
+                        android:id="@+id/nav_cinema"
+                        android:icon="@drawable/cinema"
+                        android:title="Cinema / சினிமா" />
+                    <item
+                        android:id="@+id/nav_sports"
+                        android:icon="@drawable/sports"
+                        android:title="Sports / விளையாட்டு" />
+                    <item
+                    android:id="@+id/nav_actors"
+                    android:icon="@drawable/actor"
+                    android:title="Actors / நடிகர்கள்" />
+
+                    <item
+                        android:id="@+id/nav_actress"
+                        android:icon="@drawable/actress"
+                        android:title="Actress / நடிகை" />
+
+                    <item
+                        android:id="@+id/nav_pubg"
+                        android:icon="@drawable/pubg"
+                        android:title="PUBG" />
+
+                    <item
+                        android:id="@+id/nav_mokkai"
+                        android:icon="@drawable/mokkai"
+                        android:title="Mokkai / மொக்கை" />
+
+                    <item
+                        android:id="@+id/nav_other_tamil"
+                        android:icon="@drawable/others"
+                        android:title="Others / மற்றவை" />
+
+
+                </group>
+            </menu>
+        </item>
+
+        <item android:title="Other Memes"
+            android:id="@+id/item_Other_memes">
+            <menu>
+                <group android:checkableBehavior="single">
+                    <item
+                        android:id="@+id/nav_funny"
+                        android:icon="@drawable/funny"
+                        android:title="Funny"
+
+                        />
+                    <item
+                        android:id="@+id/nav_hollywood"
+                        android:icon="@drawable/hollywood"
+                        android:title="Hollywood / ஹாலிவுட்" />
+
+                    <item
+                        android:id="@+id/nav_savage"
+                        android:icon="@drawable/savage"
+                        android:title="Savage" />
+
+                    <item
+                        android:id="@+id/nav_dark_humor"
+                        android:icon="@drawable/darkhumor"
+                        android:title="Dark Humor" />
+
+
+                    <item
+                        android:id="@+id/nav_wtf"
+                        android:icon="@drawable/wtf"
+                        android:title="WTF" />
+
+                    <item
+                        android:id="@+id/nav_gif"
+                        android:icon="@drawable/gif"
+                        android:title="GIF" />
+                    <item
+                        android:id="@+id/nav_other"
+                        android:icon="@drawable/others"
+                        android:title="Others" />
+
+                </group>
+            </menu>
+        </item>
+
+        <item android:title="Templates"
+            android:id="@+id/item_templates">
+            <menu>
+                <group android:checkableBehavior="single">
+
+                    <item
+                        android:id="@+id/nav_trending_templates"
+                        android:icon="@drawable/trendingtemplates"
+                        android:title="Trending Templates" />
+                    <item
+                        android:id="@+id/nav_vadivelu"
+                        android:icon="@drawable/vadivel"
+                        android:title="Vadivelu / வடிவேலு" />
+                    <item
+                        android:id="@+id/nav_santhanam"
+                        android:icon="@drawable/santhanam"
+                        android:title="Santhanam / சந்தானம்" />
+                    <item
+                        android:id="@+id/nav_goundamani_senthil"
+                        android:icon="@drawable/goundamani"
+                        android:title="Goundamani-Senthil/கவுண்டமணி" />
+                    <item
+                        android:id="@+id/nav_vivek"
+                        android:icon="@drawable/vivek"
+                        android:title="Vivek / விவேக்" />
+                    <item
+                        android:id="@+id/nav_sports_templates"
+                        android:icon="@drawable/sports"
+                        android:title="Sports / விளையாட்டு" />
+                    <item
+                        android:id="@+id/nav_politics_templates"
+                        android:icon="@drawable/politics"
+                        android:title="Politics / அரசியல்" />
+
+                    <item
+                        android:id="@+id/nav_youtube"
+                        android:icon="@drawable/youtube"
+                        android:title="YouTube Templates" />
+                    <item
+                        android:id="@+id/nav_other_templates"
+                        android:icon="@drawable/others"
+                        android:title="Other Templates" />
+
+
+
+
+                </group>
+            </menu>
+        </item>
+
+
+
+    </group>
+
+
+    <item android:title="Options"
+        >
+        <menu>
+            <item
+
+                android:id="@+id/nav_settings"
+                android:icon="@drawable/ic_menu_share"
+                android:title="Settings" />
+            <item
+                android:id="@+id/nav_exit"
+                android:icon="@drawable/ic_menu_send"
+                android:title="Exit" />
+        </menu>
+    </item>
+
+</menu>
