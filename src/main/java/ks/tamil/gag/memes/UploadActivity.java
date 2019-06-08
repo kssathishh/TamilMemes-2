@@ -8,7 +8,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
+import android.support.annotation.RequiresApi;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -16,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -24,6 +26,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -46,6 +49,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
+import ks.tamil.gag.memes.adapter.RecyclerSnapAdapter;
 
 
 public class UploadActivity extends AppCompatActivity {
@@ -67,11 +71,20 @@ public class UploadActivity extends AppCompatActivity {
         setContentView(R.layout.activity_upload);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        setTitle("Upload Memes");
 
         Window window = UploadActivity.this.getWindow();
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         window.setStatusBarColor(ContextCompat.getColor(UploadActivity.this,R.color.colorPrimaryDark));
+
+
+       TextView tv_select_category =  findViewById(R.id.tv_select_category);
+       tv_select_category.setText(Html.fromHtml(getString(R.string.select_category)));
+        TextView tv_select_images =  findViewById(R.id.tv_select_images);
+        tv_select_images.setText(Html.fromHtml(getString(R.string.select_images)));
+
+
 
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.CAMERA)
@@ -102,109 +115,25 @@ public class UploadActivity extends AppCompatActivity {
         });
 
 
-        final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        Button btn_save = findViewById(R.id.btn_save);
+        btn_save.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-
-                EditText et_desc = findViewById(R.id.editText_desc);
-
-
-                Log.i("tag7",pathList.size()+" - "+ download_url_list.size());
-
-                if(pathList.size() == download_url_list.size() ) {
-
-
-                    for (int i = 0; i < download_url_list.size(); i++) {
-
-                        final int random_upvote = new Random().nextInt((999 - 100) + 1) + 100;
-                        final int random_downvote = new Random().nextInt((100 - 10) + 1) + 10;
-
-
-                        Map<String, Object> doc_upload = new HashMap<>();
-                        doc_upload.put("category", selected_category);
-
-                        doc_upload.put("description", et_desc.getText() + "");
-                        doc_upload.put("downvote", random_downvote);
-                        doc_upload.put("upvote", random_upvote);
-                        doc_upload.put("link", download_url_list.get(i));
-                        doc_upload.put("sensitive", false);
-                        doc_upload.put("tags", Arrays.asList("tag1"));
-                        doc_upload.put("time", new Timestamp(new Date()));
-                        doc_upload.put("type", "image");
-                        doc_upload.put("username", Build.MODEL + "-" + Build.ID);
-                        doc_upload.put("comments", Arrays.asList(""));
-                        doc_upload.put("flag_string", "");
-                        doc_upload.put("flag_integer", 0);
-                        doc_upload.put("flag_boolean", false);
-
-
-                        db.collection("collection1").document(new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(new Date())+"-"+Build.MODEL + Build.ID + System.currentTimeMillis() +"-"+i)
-                                .set(doc_upload)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Log.d("tag7", "DocumentSnapshot successfully written!");
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.w("tag7", "Error writing document", e);
-                                    }
-                                });
-
-
-                    }
-                }
-                else
-                {
-                    Log.i("tag7", "not uploaded");
-                    AlertDialog.Builder builder = new AlertDialog.Builder(UploadActivity.this);
-                    builder.setMessage("Images are Uploading!!! Please wait untill images are uploaded to save the Memes.")
-                            .setTitle("Upload Pending");
-                    AlertDialog dialog = builder.create();
-                    dialog.show();
-
-
-                }
-
-             /*  for(int ii =0;ii< pathList.size();ii++)
-                {
-                    String filename = pathList.get(ii);
-                    File file1 = new File(filename);
-
-
-                final StorageReference ref = FirebaseStorage.getInstance().getReference().child("images/"+android.os.Build.MODEL+file1.getName());
-                Uri file = Uri.fromFile(new File(filename));
-
-               UploadTask uploadTask = ref.putFile(file);
-                    uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-
-                        }
-                    });
-                    uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                @Override
-                                public void onSuccess(Uri uri) {
-                                    Log.d("tag5", "onSuccess: uri= "+ uri.toString());
-                                }
-                            });
-                        }
-                    });
-
-
-            }*/
-
+            public void onClick(View v) {
+                saveMemes();
             }
         });
+        Button btn_cancel = findViewById(R.id.btn_cancel);
+        btn_cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                close();
+            }
+        });
+
+
+
+
 
 
     btn_category = findViewById(R.id.btn_category);
@@ -220,6 +149,132 @@ public class UploadActivity extends AppCompatActivity {
 
     }
 
+    private void saveMemes() {
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+
+        final ArrayList<Boolean> uploaded = new ArrayList<Boolean>();
+
+        EditText et_desc = findViewById(R.id.editText_desc);
+
+
+        Log.i("tag7",pathList.size()+" - "+ download_url_list.size());
+
+        if(pathList.size() == download_url_list.size() ) {
+
+
+            for ( int i = 0; i < download_url_list.size(); i++) {
+
+
+                final int random_upvote = new Random().nextInt((999 - 100) + 1) + 100;
+                final int random_downvote = new Random().nextInt((100 - 10) + 1) + 10;
+
+
+                Map<String, Object> doc_upload = new HashMap<>();
+                doc_upload.put("category", selected_category);
+
+                doc_upload.put("description", et_desc.getText() + "");
+                doc_upload.put("downvote", random_downvote);
+                doc_upload.put("upvote", random_upvote);
+                doc_upload.put("link", download_url_list.get(i));
+                doc_upload.put("sensitive", false);
+                doc_upload.put("tags", Arrays.asList("tag1"));
+                doc_upload.put("time", new Timestamp(new Date()));
+                doc_upload.put("type", "image");
+                doc_upload.put("username", Build.MODEL + "-" + Build.ID);
+                doc_upload.put("comments", Arrays.asList(""));
+                doc_upload.put("flag_string", "");
+                doc_upload.put("flag_integer", 0);
+                doc_upload.put("flag_boolean", false);
+
+
+                db.collection("collection1").document(new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(new Date())+"-"+Build.MODEL + Build.ID + System.currentTimeMillis() +"-"+i)
+                        .set(doc_upload)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d("tag7", "DocumentSnapshot successfully written!");
+                                uploaded.add(true);
+
+                                //  if(uploaded.size() == download_url_list.size())
+                                Snackbar snackbar = Snackbar
+                                        .make(findViewById(R.id.coordinatorLayout), uploaded.size() + "/" + download_url_list.size() + " Memes Uploaded Successfully!!!", Snackbar.LENGTH_LONG);
+                                snackbar.show();
+
+                                if(uploaded.size() == download_url_list.size())
+                                {
+
+                                    AlertDialog.Builder builder = new AlertDialog.Builder(UploadActivity.this);
+                                    builder.setMessage("Memes uploaded Successfully.")
+                                            .setTitle("Upload Successful")
+                                            .setIcon(R.drawable.success);
+
+                                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            finish();
+                                        }
+                                    });
+
+                                    AlertDialog dialog = builder.create();
+                                    dialog.show();
+
+                                }
+
+
+
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w("tag7", "Error writing document", e);
+                            }
+                        });
+
+
+            }
+        }
+        else
+        {
+            Log.i("tag7", "not uploaded");
+            AlertDialog.Builder builder = new AlertDialog.Builder(UploadActivity.this);
+            builder.setMessage("Images are Uploading!!! Please wait untill images are uploaded before saving Memes.")
+                    .setTitle("Upload in Progress!!!")
+                    .setIcon(R.drawable.upload_progress);
+            AlertDialog dialog = builder.create();
+            dialog.show();
+
+
+        }
+
+    }
+
+    private void close() {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(UploadActivity.this);
+        builder.setMessage("Cancel")
+                .setTitle("Cancel Upload?")
+                .setIcon(R.drawable.cancel);
+
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+            }
+        });
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
     private void selectCategory() {
 
         final ArrayList<String> selected_items = new ArrayList<>();
@@ -228,7 +283,7 @@ public class UploadActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(UploadActivity.this);
         builder.setTitle("Select Category");
 
-        boolean[] checkedItems = new boolean[]{false, false, false, false ,false, false, false, false, false,false, false, false, false, false,false, false, false, false, false,false, false, false, false, false,false, false, false, false, false,false, false, false, false, false}; //this will checked the items when user open the dialog
+        boolean[] checkedItems = new boolean[]{false, false, false, false ,false, false, false, false, false,false, false, false, false, false,false, false, false, false, false,false, false, false, false, false,false, false, false, false, false,false, false, false, false, false,false, false, false, false, false,false, false, false, false, false}; //this will checked the items when user open the dialog
         builder.setIcon(R.drawable.twotone_category_black_48);
         builder.setMultiChoiceItems(listItems,checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
             @Override
@@ -268,6 +323,7 @@ public class UploadActivity extends AppCompatActivity {
 
 
     private void setupRecyclerAdapter(ArrayList<String> img_pathlist) {
+        download_url_list.clear();
         ArrayList<String> apps = img_pathlist;
 
         SnapAdapter snapAdapter = new SnapAdapter();
@@ -293,6 +349,7 @@ public class UploadActivity extends AppCompatActivity {
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
 
@@ -321,10 +378,19 @@ public class UploadActivity extends AppCompatActivity {
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     public void uploadImages(ArrayList<String> upload_pathList)
     {
         final ProgressBar pb_upload = findViewById(R.id.progressBar_upload);
+        final TextView tv_upload = findViewById(R.id.tv_upload);
+        download_url_list.clear();
+        tv_upload.setText("Uploading...");
+        tv_upload.setTextColor(getColor(R.color.red));
+        pb_upload.setVisibility(View.VISIBLE);
+
+
         pb_upload.setMax(upload_pathList.size());
+        pb_upload.setProgress(0);
           for(int ii =0;ii< upload_pathList.size();ii++)
                 {
                     String filename = upload_pathList.get(ii);
@@ -348,10 +414,19 @@ public class UploadActivity extends AppCompatActivity {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @RequiresApi(api = Build.VERSION_CODES.M)
                                 @Override
                                 public void onSuccess(Uri uri) {
                                     download_url_list.add(uri.toString());
                                     pb_upload.setProgress(pb_upload.getProgress()+1);
+                                    tv_upload.setText("Uploading("+pb_upload.getProgress()+"/"+pb_upload.getMax()+")...");
+
+                                    if(pb_upload.getProgress() == pb_upload.getMax())
+                                    {
+                                        tv_upload.setText("Uploaded Successfully");
+                                        tv_upload.setTextColor(getColor(R.color.green));
+                                        pb_upload.setVisibility(View.GONE);
+                                    }
 
                                 }
                             });
@@ -363,4 +438,10 @@ public class UploadActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onBackPressed() {
+        //super.onBackPressed();
+
+        close();
+    }
 }

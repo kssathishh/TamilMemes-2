@@ -1,4 +1,4 @@
-package ks.tamil.gag.memes;
+package ks.tamil.gag.memes.adapter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -15,10 +15,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 
 import java.io.File;
 import java.util.ArrayList;
+
+import ks.tamil.gag.memes.R;
+import ks.tamil.gag.memes.UploadActivity;
 
 public class RecyclerSnapAdapter extends RecyclerView.Adapter<RecyclerSnapAdapter.ViewHolder> {
 
@@ -33,7 +35,7 @@ public class RecyclerSnapAdapter extends RecyclerView.Adapter<RecyclerSnapAdapte
         mApps = apps;
         mPager = pager;
         mcontext = context;
-        UploadActivity  ua  = new UploadActivity();
+        UploadActivity ua  = new UploadActivity();
         ua.download_url_list.clear();
 
     }

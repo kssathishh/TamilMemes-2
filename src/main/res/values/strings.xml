@@ -9,6 +9,7 @@
 
     <string-array name="categories">
         <item>Funny / நகைச்சுவை</item>
+        <item>Corporate / கார்பொரேட்</item>
         <item>Politics / அரசியல்</item>
         <item>Cinema / சினிமா</item>
         <item>Sports / விளையாட்டு</item>
@@ -38,7 +39,7 @@
     </string-array>
 
 
-    <string name="title_activity_upload">UploadActivity</string>
+    <string name="title_activity_upload">Upload Memes</string>
     <string name="time_ago_prefix"></string>
     <string name="time_ago_suffix">ago</string>
     <string name="time_ago_seconds">less than a minute</string>
@@ -52,4 +53,19 @@
     <string name="time_ago_months">%d months</string>
     <string name="time_ago_year">about a year</string>
     <string name="time_ago_years">%d years</string>
+
+
+    <string name="select_category">
+ <![CDATA[
+  Select Category<b><font color=#ff0000>*</b>
+]]>
+  </string>
+
+    <string name="select_images">
+ <![CDATA[
+  Select Images<b><font color=#ff0000>*</b>
+]]>
+  </string>
+
 </resources>
+

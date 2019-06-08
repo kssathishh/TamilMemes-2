@@ -109,7 +109,8 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
                 android:contentDescription="image/gif/video"
-                android:src="@drawable/hourglass"></ImageView>
+                android:src="@drawable/hourglass"
+                app:srcCompat="@drawable/hourglass"></ImageView>
 
             <LinearLayout
                 android:layout_width="match_parent"

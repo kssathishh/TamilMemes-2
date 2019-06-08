@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        setTitle("Home");
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,19 +76,12 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-
-
         navigationView.setItemIconTintList(null);
         instance=this;
 
         setupFragment("All");
 
-
-
-
         navigationView.invalidate();
-
-
 
         setNavigationStyle(navigationView);
 
@@ -149,15 +142,6 @@ public class MainActivity extends AppCompatActivity
         viewPager.setAdapter(adapter);
         allTabs.setupWithViewPager(viewPager);
     }
-
-
-
-
-
-
-
-
-
 
 
 
@@ -274,6 +258,7 @@ public class MainActivity extends AppCompatActivity
 
         }
 
+        setTitle(category);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

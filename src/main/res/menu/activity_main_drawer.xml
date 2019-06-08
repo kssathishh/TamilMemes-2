@@ -25,11 +25,11 @@
                          android:title="Funny / நகைச்சுவை"
 
                          />
-            <item
-                    android:id="@+id/nav_politics"
-                    android:icon="@drawable/politics"
-                    android:title="Politics / அரசியல்" />
 
+                    <item
+                        android:id="@+id/nav_coorporate"
+                        android:icon="@drawable/politics"
+                        android:title="Corporate / கார்பொரேட்" />
                     <item
                         android:id="@+id/nav_cinema"
                         android:icon="@drawable/cinema"
@@ -38,6 +38,10 @@
                         android:id="@+id/nav_sports"
                         android:icon="@drawable/sports"
                         android:title="Sports / விளையாட்டு" />
+                    <item
+                        android:id="@+id/nav_politics"
+                        android:icon="@drawable/politics"
+                        android:title="Politics / அரசியல்" />
                     <item
                     android:id="@+id/nav_actors"
                     android:icon="@drawable/actor"

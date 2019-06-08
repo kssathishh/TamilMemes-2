@@ -5,16 +5,14 @@ package ks.tamil.gag.memes.adapter;
  */
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -22,10 +20,11 @@ import com.bumptech.glide.Glide;
 import java.util.ArrayList;
 
 import ks.tamil.gag.memes.R;
+import ks.tamil.gag.memes.SwipeActivity;
 
 public class GridViewAdapter extends BaseAdapter {
 
-    public ArrayList<String> allItemsResourceID;
+    public ArrayList<String> allItemsUrl;
     public ArrayList<String> allDesc;
     public ArrayList<String> all_category ;
     public ArrayList<String> all_timestamp ;
@@ -43,7 +42,7 @@ public class GridViewAdapter extends BaseAdapter {
         inflater = LayoutInflater.from(context);
         this.context = context;
 //
-        allItemsResourceID = images;
+        allItemsUrl = images;
         allDesc = desc;
         all_category = category;
         all_timestamp = timestamp;
@@ -53,7 +52,7 @@ public class GridViewAdapter extends BaseAdapter {
 
         Log.w("tag2", images.size()+"");
 
-        Log.d("RecyclerSnapAdapter", "Create Image RecyclerSnapAdapter " + allItemsResourceID.size());
+        Log.d("RecyclerSnapAdapter", "Create Image RecyclerSnapAdapter " + allItemsUrl.size());
     }
     GridViewAdapter(Context context) {
         inflater = LayoutInflater.from(context);
@@ -61,12 +60,12 @@ public class GridViewAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return allItemsResourceID.size();
+        return allItemsUrl.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return allItemsResourceID.get(position);
+        return allItemsUrl.get(position);
     }
 
     @Override
@@ -97,17 +96,26 @@ public class GridViewAdapter extends BaseAdapter {
             holder = (ViewHolder) view.getTag();
         }
 
-        if (!(allItemsResourceID.size()<=position)) {
-            Log.w("tag2", allItemsResourceID.get(position));
+        if (!(allItemsUrl.size()<=position)) {
+            Log.w("tag2", allItemsUrl.get(position));
 
 
 
-            Glide.with(context)
-                    .load(allItemsResourceID.get(position))
-                    .placeholder(R.drawable.hourglass)
-                    .error(R.drawable.notfound)
-                    .into(holder.imageView);
+        Glide.with(context)
+                .load(allItemsUrl.get(position))
+                .placeholder(R.drawable.hourglass)
+                .error(R.drawable.notfound)
+                .into(holder.imageView);
 
+holder.imageView.setOnClickListener(new View.OnClickListener() {
+    @Override
+    public void onClick(View v) {
+        Intent intent = new Intent(context, SwipeActivity.class);
+        intent.putExtra("URLList",allItemsUrl);
+        intent.putExtra("position",position);
+        context.startActivity(intent);
+    }
+});
             if(!allDesc.get(position).equals(""))
               holder.text_desc.setText(allDesc.get(position));
             else

@@ -16,6 +16,8 @@ import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper;
 
 import java.util.ArrayList;
 
+import ks.tamil.gag.memes.adapter.RecyclerSnapAdapter;
+
 public class SnapAdapter extends RecyclerView.Adapter<SnapAdapter.ViewHolder> implements GravitySnapHelper.SnapListener {
 
     public static final int VERTICAL = 0;
