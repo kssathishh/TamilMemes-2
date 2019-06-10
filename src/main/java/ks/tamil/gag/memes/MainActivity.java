@@ -1,7 +1,10 @@
 package ks.tamil.gag.memes;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
@@ -10,6 +13,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.widget.Toolbar;
 import android.text.SpannableString;
 import android.text.style.TextAppearanceSpan;
@@ -17,6 +21,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import ks.tamil.gag.memes.adapter.ViewPagerAdapter;
 import ks.tamil.gag.memes.fragment.FragmentOne;
@@ -25,6 +30,9 @@ import ks.tamil.gag.memes.fragment.FragmentTwo;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     public static MainActivity instance;
+    boolean doubleBackToExitPressedOnce = false;
+
+
 
     public FragmentRefreshListener_1 getFragmentRefreshListener_1() {
         return fragmentRefreshListener_1;
@@ -152,14 +160,33 @@ public class MainActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            if (doubleBackToExitPressedOnce) {
+                super.onBackPressed();
+                return;
+            }
+
+            this.doubleBackToExitPressedOnce = true;
+            Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show();
+
+            new Handler().postDelayed(new Runnable() {
+
+                @Override
+                public void run() {
+                    doubleBackToExitPressedOnce=false;
+                }
+            }, 2000);
         }
     }
 
+    @SuppressLint("RestrictedApi")
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+        if(menu instanceof MenuBuilder){
+            MenuBuilder m = (MenuBuilder) menu;
+            m.setOptionalIconsVisible(true);
+        }
         return true;
     }
 
@@ -171,7 +198,7 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_feedback) {
             return true;
         }
 
@@ -241,6 +268,16 @@ public class MainActivity extends AppCompatActivity
             category = "Others";
         else if (id == R.id.nav_other_templates)
             category = "Other Templates";
+
+
+
+        else if (id == R.id.nav_share_app)
+            share();
+        else if (id == R.id.nav_exit)
+            exit();
+
+
+
         else
             category = "All";
 
@@ -265,12 +302,35 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+
+
     public interface FragmentRefreshListener_1{
         void onRefresh_fone(String category);
 
     }
     public interface FragmentRefreshListener_2{
         void onRefresh_ftwo(String category);
+
+    }
+
+
+    private void exit() {
+        finish();
+    }
+
+    private void share() {
+
+        try {
+            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            shareIntent.setType("text/plain");
+            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Tamil GAG Memes");
+            String shareMessage= "Have a Look at this App, Its Funny & Interesting\n\n";
+            shareMessage = shareMessage + "https://play.google.com/store/apps/details?id=" + BuildConfig.APPLICATION_ID +"\n\n";
+            shareIntent.putExtra(Intent.EXTRA_TEXT, shareMessage);
+            startActivity(Intent.createChooser(shareIntent, "Share App"));
+        } catch(Exception e) {
+            //e.toString();
+        }
 
     }
 }

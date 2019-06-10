@@ -166,8 +166,8 @@ public class UploadActivity extends AppCompatActivity {
             for ( int i = 0; i < download_url_list.size(); i++) {
 
 
-                final int random_upvote = new Random().nextInt((999 - 100) + 1) + 100;
-                final int random_downvote = new Random().nextInt((100 - 10) + 1) + 10;
+                final int random_upvote = new Random().nextInt((100 - 10) + 1) + 10;
+                final int random_downvote = new Random().nextInt((10 - 1) + 1) + 1;
 
 
                 Map<String, Object> doc_upload = new HashMap<>();

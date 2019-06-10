@@ -1,19 +1,20 @@
 package ks.tamil.gag.memes;
 
 import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 
 import com.bumptech.glide.Glide;
 import com.ortiz.touchview.TouchImageView;
 
 import java.util.ArrayList;
 
-import ks.tamil.gag.memes.adapter.ImageAdapter;
+import ks.tamil.gag.memes.adapter.ExtendedViewPager;
+
 
 public class SwipeActivity extends AppCompatActivity {
 ArrayList<String> url_list;
@@ -30,15 +31,27 @@ int position;
 
         Log.i("tagg3",url_list.get(0));
 
-       /* ViewPager viewPager = (ViewPager) findViewById(R.id.view_pager);
-        ImageAdapter adapter = new ImageAdapter(this,url_list,position);
-        viewPager.setAdapter(adapter);*/
-
-
 
         ExtendedViewPager mViewPager = (ExtendedViewPager) findViewById(R.id.view_pager);
-//        setContentView(mViewPager);
+
         mViewPager.setAdapter(new TouchImageAdapter(url_list,position));
+
+
+        ImageButton ib_close = findViewById(R.id.imageButton_close);
+        ib_close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
+        ImageButton ib_share = findViewById(R.id.imageButton_share);
+        ib_share.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+              //  share_image();
+            }
+        });
 
 
     }

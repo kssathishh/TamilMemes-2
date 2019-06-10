@@ -133,6 +133,8 @@ holder.imageView.setOnClickListener(new View.OnClickListener() {
             holder.btn_upvote.setText(   all_upvotes.get(position)+"");
             holder.btn_downvote.setText(   all_downvotes.get(position)+"");
 
+
+
             String timestamp = all_timestamp.get(position);
 
             timestamp =     timestamp.substring(timestamp.indexOf("seconds=")+8,timestamp.indexOf(","))+
@@ -140,6 +142,16 @@ holder.imageView.setOnClickListener(new View.OnClickListener() {
 
             holder.text_timestamp.setText( timeago(Long.parseLong(timestamp)));
             Log.i("tagg1",timeago(Long.parseLong(timestamp)));
+
+
+            holder.btn_upvote.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    holder.btn_upvote.setCompoundDrawablesWithIntrinsicBounds( R.drawable.twotone_thumb_up_alt_black_18, 0, 0, 0);
+                }
+            });
+
+
 
         }
 

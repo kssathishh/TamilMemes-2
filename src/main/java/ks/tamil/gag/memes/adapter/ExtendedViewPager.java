@@ -1,4 +1,4 @@
-package ks.tamil.gag.memes;
+package ks.tamil.gag.memes.adapter;
 
 import android.content.Context;
 import android.support.v4.view.ViewPager;
