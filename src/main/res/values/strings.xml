@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Tamil Memes</string>
+    <string name="app_name">Tamil GAG</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">Android Studio</string>
@@ -9,6 +9,8 @@
 
     <string-array name="categories">
         <item>Funny / நகைச்சுவை</item>
+        <item>Relationship / காதல்</item>
+        <item>Sad / சோகம்</item>
         <item>Corporate / கார்பொரேட்</item>
         <item>Politics / அரசியல்</item>
         <item>Cinema / சினிமா</item>
@@ -30,6 +32,9 @@
         <item>Santhanam / சந்தானம்</item>
         <item>Goundamani-Senthil/கவுண்டமணி</item>
         <item>Vivek / விவேக்</item>
+        <item>Actors - Templates</item>
+        <item>Actress - Templates</item>
+        <item>Movie - Templates</item>
         <item>Sports / விளையாட்டு - T</item>
         <item>Politics / அரசியல் - T</item>
         <item>YouTube Templates</item>

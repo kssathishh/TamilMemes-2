@@ -253,7 +253,7 @@ public class UploadActivity extends AppCompatActivity {
     private void close() {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(UploadActivity.this);
-        builder.setMessage("Cancel")
+        builder.setMessage("Do you want to cancel the Upload?")
                 .setTitle("Cancel Upload?")
                 .setIcon(R.drawable.cancel);
 
@@ -283,7 +283,7 @@ public class UploadActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(UploadActivity.this);
         builder.setTitle("Select Category");
 
-        boolean[] checkedItems = new boolean[]{false, false, false, false ,false, false, false, false, false,false, false, false, false, false,false, false, false, false, false,false, false, false, false, false,false, false, false, false, false,false, false, false, false, false,false, false, false, false, false,false, false, false, false, false}; //this will checked the items when user open the dialog
+        boolean[] checkedItems = new boolean[]{false, false, false,false, false,false, false,false, false,false, false,false, false, false ,false, false, false, false, false,false, false, false, false, false,false, false, false, false, false,false, false, false, false, false,false, false, false, false, false,false, false, false, false, false,false, false, false, false, false,false, false, false, false, false}; //this will checked the items when user open the dialog
         builder.setIcon(R.drawable.twotone_category_black_48);
         builder.setMultiChoiceItems(listItems,checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
             @Override

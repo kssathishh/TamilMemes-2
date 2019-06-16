@@ -1,6 +1,10 @@
 package ks.tamil.gag.memes;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.ApplicationErrorReport;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -18,10 +22,15 @@ import android.support.v7.widget.Toolbar;
 import android.text.SpannableString;
 import android.text.style.TextAppearanceSpan;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.RatingBar;
 import android.widget.Toast;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 import ks.tamil.gag.memes.adapter.ViewPagerAdapter;
 import ks.tamil.gag.memes.fragment.FragmentOne;
@@ -144,8 +153,9 @@ public class MainActivity extends AppCompatActivity
         FragmentTwo  fragmentTwo = new FragmentTwo();
         fragmentTwo.setArguments(bundle);
 
-        adapter.addFragment(fragmentOne, "Trending");
+
         adapter.addFragment(fragmentTwo, "Fresh");
+        adapter.addFragment(fragmentOne, "Trending");
 
         viewPager.setAdapter(adapter);
         allTabs.setupWithViewPager(viewPager);
@@ -198,7 +208,13 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
+
         if (id == R.id.action_feedback) {
+            sendFeedback("Through Feedback");
+            return true;
+        }
+        if (id == R.id.action_rate) {
+            rating_alert("Through Low Rating");
             return true;
         }
 
@@ -216,6 +232,10 @@ public class MainActivity extends AppCompatActivity
              category = "All";
         else if (id == R.id.nav_tamil_funny)
            category = "Funny / நகைச்சுவை";
+        else if (id == R.id.nav_relationship)
+            category = "Relationship / காதல்";
+        else if (id == R.id.nav_sad)
+            category = "Sad / சோகம்";
         else if (id == R.id.nav_politics)
           category = "Politics / அரசியல்";
         else if (id == R.id.nav_cinema)
@@ -232,7 +252,7 @@ public class MainActivity extends AppCompatActivity
             category = "Mokkai / மொக்கை";
         else if (id == R.id.nav_other_tamil)
             category = "Others / மற்றவை";
-
+//------------------------------------------------------
         else if (id == R.id.nav_funny)
             category = "Funny";
         else if (id == R.id.nav_hollywood)
@@ -247,7 +267,7 @@ public class MainActivity extends AppCompatActivity
             category = "GIF";
         else if (id == R.id.nav_other)
             category = "Others";
-
+//---------------------------------------------------------------
         else if (id == R.id.nav_trending_templates)
             category = "Trending Templates";
         else if (id == R.id.nav_vadivelu)
@@ -258,14 +278,18 @@ public class MainActivity extends AppCompatActivity
             category = "Goundamani-Senthil/கவுண்டமணி";
         else if (id == R.id.nav_vivek)
             category = "Vivek / விவேக்";
+        else if (id == R.id.nav_actors_templates)
+            category = "Actors - Templates";
+        else if (id == R.id.nav_actress_templates)
+            category = "Actress - Templates";
+        else if (id == R.id.nav_movies_templates)
+            category = "Movie - Templates";
         else if (id == R.id.nav_sports_templates)
             category = "Sports / விளையாட்டு - T";
         else if (id == R.id.nav_politics_templates)
             category = "Politics / அரசியல் - T";
         else if (id == R.id.nav_youtube)
             category = "YouTube Templates";
-        else if (id == R.id.nav_other)
-            category = "Others";
         else if (id == R.id.nav_other_templates)
             category = "Other Templates";
 
@@ -333,4 +357,87 @@ public class MainActivity extends AppCompatActivity
         }
 
     }
+
+
+    public void rating_alert(final String feedback_text){
+
+        // TODO Auto-generated method stub
+        final AlertDialog alertadd = new AlertDialog.Builder(
+                MainActivity.this).create();
+
+        alertadd.setTitle("Like the App?");
+
+
+            alertadd.setButton(DialogInterface.BUTTON_NEGATIVE, "CANCEL", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    alertadd.dismiss();
+                }
+            });
+
+
+
+
+
+    LayoutInflater factory = LayoutInflater.from(MainActivity.this);
+    final View view = factory.inflate(R.layout.dialog_rate, null);
+
+    RatingBar rb =  view.findViewById(R.id.ratingBar);
+
+
+    rb.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
+        @Override
+        public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
+            Log.i("rating", rating + "-" + getPackageName());
+            if (rating >= 3.5)
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + getPackageName())));
+            else
+                sendFeedback(feedback_text);
+
+            alertadd.dismiss();
+        }
+    });
+
+
+    alertadd.setView(view);
+
+
+    alertadd.show();
+}
+
+    protected void sendFeedback(String feedback_text) {
+        try {
+            int i = 3 / 0;
+        } catch (Exception e) {
+            ApplicationErrorReport report = new ApplicationErrorReport();
+            report.packageName = report.processName = getApplication()
+                    .getPackageName();
+            report.time = System.currentTimeMillis();
+            report.type = ApplicationErrorReport.TYPE_CRASH;
+            report.systemApp = false;
+
+            ApplicationErrorReport.CrashInfo crash = new ApplicationErrorReport.CrashInfo();
+            crash.exceptionClassName = e.getClass().getSimpleName();
+            crash.exceptionMessage = e.getMessage();
+
+            StringWriter writer = new StringWriter();
+            PrintWriter printer = new PrintWriter(writer);
+            e.printStackTrace(printer);
+
+            crash.stackTrace = writer.toString();
+
+            StackTraceElement stack = e.getStackTrace()[0];
+            crash.throwClassName = feedback_text;
+            crash.throwFileName = stack.getFileName();
+            crash.throwLineNumber = stack.getLineNumber();
+            crash.throwMethodName = stack.getMethodName();
+
+            report.crashInfo = crash;
+
+            Intent intent = new Intent(Intent.ACTION_APP_ERROR);
+            intent.putExtra(Intent.EXTRA_BUG_REPORT, report);
+            startActivity(intent);
+        }   }
+
+
 }

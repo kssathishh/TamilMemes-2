@@ -72,11 +72,11 @@
                     android:layout_gravity="center"
                     android:layout_marginStart="5dp"
                     android:layout_marginEnd="5dp"
-                    android:layout_weight="1"
+                    android:layout_weight="10"
                     android:maxLines="1" />
 
                 <ImageButton
-                    android:id="@+id/imageButton4"
+                    android:id="@+id/imageButton_popup_menu"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
 
@@ -86,7 +86,7 @@
                     android:background="?attr/selectableItemBackground"
                     android:clickable="true"
                     android:padding="1dp"
-                    app:srcCompat="@drawable/baseline_more_vert_black_18"></ImageButton>
+                    app:srcCompat="@drawable/twotone_flag_black_18"></ImageButton>
 
             </LinearLayout>
 
@@ -108,7 +108,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
+                android:adjustViewBounds="false"
                 android:contentDescription="image/gif/video"
+                android:scaleType="fitCenter"
                 android:src="@drawable/hourglass"
                 app:srcCompat="@drawable/hourglass"></ImageView>
 
@@ -117,7 +119,9 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <Button
+
+
+                <ToggleButton
                     android:id="@+id/btn_like"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -125,11 +129,14 @@
                     android:layout_weight="1"
                     android:background="?attr/selectableItemBackground"
                     android:clickable="true"
-                    android:drawableStart="@drawable/twotone_thumb_up_alt_black_18"
+                    android:drawableLeft="@drawable/twotone_thumb_up_alt_black_24"
+                    android:maxLines="1"
                     android:padding="10dp"
-                    android:text="1.1k" />
+                    android:text="1.1 k"
+                    android:textOn="1.1 k"
+                    android:textOff="1.1 k" />
 
-                <Button
+                <ToggleButton
                     android:id="@+id/btn_dislike"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -137,9 +144,12 @@
                     android:layout_weight="1"
                     android:background="?attr/selectableItemBackground"
                     android:clickable="true"
-                    android:drawableStart="@drawable/twotone_thumb_down_alt_black_18"
+                    android:drawableLeft="@drawable/twotone_thumb_down_alt_black_24"
+                    android:maxLines="1"
                     android:padding="10dp"
-                    android:text="100" />
+                    android:text="83"
+                    android:textOn="83"
+                    android:textOff="83"/>
 
                 <Button
                     android:id="@+id/btn_share"
@@ -148,7 +158,8 @@
                     android:layout_gravity="end"
                     android:layout_weight="1"
                     android:background="?attr/selectableItemBackground"
-                    android:drawableStart="@drawable/twotone_share_black_18"
+                    android:drawableStart="@drawable/twotone_share_black_24"
+                    android:maxLines="1"
                     android:padding="10dp"
                     android:text="Share"
                     android:textAllCaps="false" />
@@ -160,7 +171,8 @@
                     android:layout_gravity="end"
                     android:layout_weight="1"
                     android:background="?attr/selectableItemBackground"
-                    android:drawableStart="@drawable/round_save_alt_black_18"
+                    android:drawableStart="@drawable/round_save_alt_black_24"
+                    android:maxLines="1"
                     android:padding="10dp"
                     android:text="Save"
                     android:textAllCaps="false" />

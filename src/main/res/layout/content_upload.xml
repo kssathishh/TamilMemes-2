@@ -185,7 +185,7 @@
 
                     android:layout_gravity="center_vertical"
                     android:layout_weight="1"
-                    android:backgroundTint="#ff4c4c"
+                    android:backgroundTint="@color/color_red_button"
                     android:gravity="center|center_horizontal"
                     android:padding="5dp"
                     android:text="Cancel"
@@ -200,7 +200,7 @@
 
                     android:layout_gravity="center_vertical"
                     android:layout_weight="1"
-                    android:backgroundTint="@color/colorPrimaryDark"
+                    android:backgroundTint="@color/colorAccent"
                     android:gravity="center|center_vertical"
                     android:padding="5dp"
                     android:text="Save"

@@ -39,11 +39,10 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.9.0'
     implementation 'com.github.nileshpambhar:MultiPhotoPicker:v1.2'
     implementation 'com.github.rubensousa:gravitysnaphelper:1.5'
-
-    // implementation 'com.davemorrissey.labs:subsampling-scale-image-view:3.10.0'
-    // implementation 'com.bogdwellers:pinchtozoom:0.1'
-
     implementation 'com.github.MikeOrtiz:TouchImageView:1.4.0'
+
+    implementation 'com.squareup.picasso:picasso:2.71828'
+
 
 
 }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -7,18 +8,21 @@
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/pullToRefresh"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        tools:ignore="ExtraText">
 
-    <GridView xmlns:android="http://schemas.android.com/apk/res/android"
+    <ListView xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/gridViewFragmentOne"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1"
         android:background="@color/color_light_grey"
-        android:gravity="center"
+        android:gravity="center" />
 
-        android:numColumns="1"
-        android:stretchMode="columnWidth"
-        />
+       <!-- android:numColumns="1"
+       android:stretchMode="columnWidth" />
+       -->
+
+
     </android.support.v4.widget.SwipeRefreshLayout>
 </LinearLayout>

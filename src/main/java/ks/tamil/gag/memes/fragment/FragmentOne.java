@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.GridView;
+import android.widget.ListView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -32,11 +33,12 @@ import ks.tamil.gag.memes.adapter.GridViewAdapter;
 
 public class FragmentOne  extends Fragment {
 
-    private GridView gridView;
+    private ListView gridView;
 
     private TypedArray allImages;
     boolean flag_loading = false;
 
+    final ArrayList<String> allDOcumentReference = new ArrayList<>();
     final ArrayList<String> allDrawableImages = new ArrayList<>();
     final ArrayList<String> allDesc = new ArrayList<>();
     final ArrayList<String> all_category = new ArrayList<>();
@@ -158,7 +160,7 @@ try{
                                 Log.d("TAG1", document.get("link").toString());
 
                                 allDrawableImages.add(document.get("link").toString());
-
+                                allDOcumentReference.add(document.getReference().getPath());
                                 if(document.get("description")==null)
                                     allDesc.add("");
                                 else
@@ -201,20 +203,14 @@ try{
     }
 
     private void getAllWidgets(View view) {
-        gridView = (GridView) view.findViewById(R.id.gridViewFragmentOne);
-
-
-
-
-
-
+        gridView = (ListView) view.findViewById(R.id.gridViewFragmentOne);
     }
 
     private void setAdapter(String category)
     {
         try{
         //--
-
+            allDOcumentReference.clear();
             allDrawableImages.clear();
             allDesc.clear();
 
@@ -264,7 +260,10 @@ try{
 
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                Log.d("TAG1", document.get("link").toString());
+
+                                Log.d("TAG1", document.getReference().getPath());
+
+                                allDOcumentReference.add( document.getReference().getPath());
                                 allDrawableImages.add(document.get("link").toString());
 
                                 if (document.get("description") == null)
@@ -280,7 +279,7 @@ try{
 
                             Log.w("tag22-f1", allDrawableImages.size() + "");
 
-                            gridViewAdapter = new GridViewAdapter(MainActivity.getInstance(), allDrawableImages,allDesc,all_category,all_timestamp,all_upvotes,all_downvotes);
+                            gridViewAdapter = new GridViewAdapter(MainActivity.getInstance(), allDrawableImages,allDesc,all_category,all_timestamp,all_upvotes,all_downvotes,allDOcumentReference);
                                 Log.w("tag2", allDrawableImages.size()+"");
 
                                 gridView.setAdapter(gridViewAdapter);

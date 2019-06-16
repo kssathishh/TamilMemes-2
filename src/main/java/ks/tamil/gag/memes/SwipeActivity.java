@@ -1,5 +1,8 @@
 package ks.tamil.gag.memes;
 
+import android.content.Intent;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.support.v4.view.PagerAdapter;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -7,13 +10,21 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.ortiz.touchview.TouchImageView;
 
+import java.io.BufferedInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 
 import ks.tamil.gag.memes.adapter.ExtendedViewPager;
+
 
 
 public class SwipeActivity extends AppCompatActivity {
@@ -49,13 +60,93 @@ int position;
         ib_share.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-              //  share_image();
+                String fileName =  getExternalCacheDir()+"/cache.jpg";
+                new DownloadFileFromURL().execute(url_list.get(position),"share",fileName);
             }
         });
 
 
+
     }
-     class TouchImageAdapter extends PagerAdapter {
+
+    class DownloadFileFromURL extends AsyncTask<String, String, String[]> {
+
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+        }
+
+
+        @Override
+        protected String[] doInBackground(String... f_url) {
+            int count;
+            String fileName = f_url[2];
+
+            try {
+                URL url = new URL(f_url[0]);
+                URLConnection connection = url.openConnection();
+                connection.connect();
+
+
+
+                // download the file
+                InputStream input = new BufferedInputStream(url.openStream(),
+                        8192);
+
+
+
+                // Output stream
+                OutputStream output = new FileOutputStream(fileName);
+
+                byte data[] = new byte[1024];
+
+
+                while ((count = input.read(data)) != -1) {
+
+                    output.write(data, 0, count);
+                }
+
+                // flushing output
+                output.flush();
+
+                // closing streams
+                output.close();
+                input.close();
+
+            } catch (Exception e) {
+                Log.e("Error: ", e.getMessage());
+            }
+
+
+            return f_url;
+        }
+
+
+
+
+        @Override
+        protected void onPostExecute(String[] file_url) {
+            // dismiss the dialog after the file was downloaded
+
+            if(file_url[1].contains("save")) {
+
+                Toast.makeText(SwipeActivity.this, "Saved at : " + file_url[2], Toast.LENGTH_LONG).show();
+            }
+
+            else if (file_url[1].contains("share")) {
+                Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+                sharingIntent.setType("image/*");
+                sharingIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(file_url[2]));
+                startActivity(Intent.createChooser(sharingIntent, "Share Memes"));
+            }
+
+        }
+
+    }
+
+    class TouchImageAdapter extends PagerAdapter {
 
         private  int[] images = { R.drawable.savage, R.drawable.vivek, R.drawable.santhanam };
          ArrayList<String> url_list;

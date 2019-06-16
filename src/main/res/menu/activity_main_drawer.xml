@@ -8,7 +8,7 @@
 
         <item
             android:id="@+id/nav_home"
-            android:icon="@drawable/ic_menu_camera"
+            android:icon="@drawable/sharp_home_black_24"
             android:title="Home" />
 
         <item android:title="Tamil Memes"
@@ -25,10 +25,22 @@
                          android:title="Funny / நகைச்சுவை"
 
                          />
+                    <item
+                        android:id="@+id/nav_relationship"
+                        android:icon="@drawable/baseline_favorite_black_24"
+                        android:title="Relationship / காதல்" />
+
+
+                    <item
+                        android:id="@+id/nav_sad"
+                        android:icon="@drawable/baseline_sentiment_very_dissatisfied_black_24"
+                        android:title="Sad / சோகம்" />
+
+
 
                     <item
                         android:id="@+id/nav_coorporate"
-                        android:icon="@drawable/politics"
+                        android:icon="@drawable/baseline_work_black_24"
                         android:title="Corporate / கார்பொரேட்" />
                     <item
                         android:id="@+id/nav_cinema"
@@ -141,14 +153,28 @@
                         android:id="@+id/nav_vivek"
                         android:icon="@drawable/vivek"
                         android:title="Vivek / விவேக்" />
+
+                    <item
+                        android:id="@+id/nav_actors_templates"
+                        android:icon="@drawable/actor"
+                        android:title="Actors - Templates" />
+                    <item
+                        android:id="@+id/nav_actress_templates"
+                        android:icon="@drawable/actress"
+                        android:title="Actress - Templates" />
+                    <item
+                        android:id="@+id/nav_movies_templates"
+                        android:icon="@drawable/cinema"
+                        android:title="Movie - Templates" />
+
                     <item
                         android:id="@+id/nav_sports_templates"
                         android:icon="@drawable/sports"
-                        android:title="Sports / விளையாட்டு" />
+                        android:title="Sports / விளையாட்டு - T" />
                     <item
                         android:id="@+id/nav_politics_templates"
                         android:icon="@drawable/politics"
-                        android:title="Politics / அரசியல்" />
+                        android:title="Politics / அரசியல் - T" />
 
                     <item
                         android:id="@+id/nav_youtube"

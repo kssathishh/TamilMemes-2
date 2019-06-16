@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.GridView;
+import android.widget.ListView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -32,11 +33,12 @@ import ks.tamil.gag.memes.adapter.GridViewAdapter;
 
 public class FragmentTwo  extends Fragment {
 
-    private GridView gridView;
+    private ListView gridView;
 
     private TypedArray allImages;
     boolean flag_loading = false;
 
+    final ArrayList<String> allDOcumentReference = new ArrayList<>();
     final ArrayList<String> allDrawableImages = new ArrayList<>();
     final ArrayList<String> allDesc = new ArrayList<>();
     final ArrayList<String> all_category = new ArrayList<>();
@@ -153,6 +155,7 @@ try {
                             Log.d("TAG1", document.get("link").toString());
 
                             allDrawableImages.add(document.get("link").toString());
+                            allDOcumentReference.add(document.getReference().getPath());
 
                             if (document.get("description") == null)
                                 allDesc.add("");
@@ -194,7 +197,7 @@ try {
     }
 
     private void getAllWidgets(View view) {
-        gridView = (GridView) view.findViewById(R.id.gridViewFragmentOne);
+        gridView = (ListView) view.findViewById(R.id.gridViewFragmentOne);
 
 
 
@@ -207,7 +210,7 @@ try {
 
         try {
             //--
-
+            allDOcumentReference.clear();
             allDrawableImages.clear();
             allDesc.clear();
 
@@ -254,7 +257,7 @@ try {
                                 for (QueryDocumentSnapshot document : task.getResult()) {
 
                                     allDrawableImages.add(document.get("link").toString());
-
+                                    allDOcumentReference.add(document.getReference().getPath());
                                     if (document.get("description") == null)
                                         allDesc.add("");
                                     else
@@ -266,7 +269,7 @@ try {
                                     all_downvotes.add(Integer.parseInt(document.get("downvote") + ""));
 
                                 }
-                                    gridViewAdapter = new GridViewAdapter(MainActivity.getInstance(), allDrawableImages, allDesc, all_category, all_timestamp, all_upvotes, all_downvotes);
+                                    gridViewAdapter = new GridViewAdapter(MainActivity.getInstance(), allDrawableImages, allDesc, all_category, all_timestamp, all_upvotes, all_downvotes,allDOcumentReference);
                                     Log.w("tag22-f2", allDrawableImages.size() + "");
 
                                     gridView.setAdapter(gridViewAdapter);
