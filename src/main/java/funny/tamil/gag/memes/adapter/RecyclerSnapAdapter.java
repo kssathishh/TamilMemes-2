@@ -8,6 +8,7 @@ import android.graphics.drawable.Drawable;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
@@ -70,18 +71,26 @@ public class RecyclerSnapAdapter extends RecyclerView.Adapter<RecyclerSnapAdapte
 
                 try {
 
-                        InputStream is = mcontext.getContentResolver().openInputStream(Uri.parse(app));
-                        myBitmap = BitmapFactory.decodeStream(is);
+                      if(imgFile.exists())
+                       {
+
+                           myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+
+                       }
+                       else {
+
+                           InputStream is = mcontext.getContentResolver().openInputStream(Uri.parse(app));
+                           myBitmap = BitmapFactory.decodeStream(is);
+                       }
                     Log.i("Logg5","Recycler_uri");
 
                 }catch (Exception e){
-                    if(imgFile.exists()) {
-                         myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+
                         Log.i("Logg5","Recycler_path");
 
                     }
-                    e.printStackTrace();
-                }
+
+
 
 
 

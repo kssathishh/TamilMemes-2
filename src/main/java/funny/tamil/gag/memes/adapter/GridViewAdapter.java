@@ -31,6 +31,8 @@ import android.widget.ToggleButton;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.github.ybq.android.spinkit.style.ChasingDots;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -174,9 +176,22 @@ public class GridViewAdapter extends BaseAdapter {
             Glide.with(context)
                     .load(allItemsUrl.get(position))
                     .placeholder(R.drawable.transparentbg)
-                    .error(R.drawable.notfound)
+                    .error(R.drawable.reloadtransparent)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .thumbnail(0.1f)
+                    .listener(new RequestListener() {
+                        @Override
+                        public boolean onException(Exception e, Object model, Target target, boolean isFirstResource) {
+
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(Object resource, Object model, Target target, boolean isFromMemoryCache, boolean isFirstResource) {
+
+                            return false;
+                        }
+                    })
                     .into(holder.imageView);
 
             holder.imageView.setOnClickListener(new View.OnClickListener() {

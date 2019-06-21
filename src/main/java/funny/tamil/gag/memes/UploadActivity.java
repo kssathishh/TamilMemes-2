@@ -54,6 +54,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.security.spec.EncodedKeySpec;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -458,23 +459,23 @@ public class UploadActivity extends AppCompatActivity {
 
 
     @RequiresApi(api = Build.VERSION_CODES.M)
-    public void uploadImages(ArrayList<String> upload_pathList) {
+    public void uploadImages(final ArrayList<String> upload_pathList) {
         final ProgressBar pb_upload = findViewById(R.id.progressBar_upload);
         final TextView tv_upload = findViewById(R.id.tv_upload);
         download_url_list.clear();
         tv_upload.setText("Uploading...");
         tv_upload.setTextColor(getColor(R.color.red));
         pb_upload.setVisibility(View.VISIBLE);
-
-
         pb_upload.setMax(upload_pathList.size());
         pb_upload.setProgress(0);
-        Uri file = null;
+        Uri uri = null;
         UploadTask uploadTask = null;
         for (int ii = 0; ii < upload_pathList.size(); ii++) {
-            Log.i("Logg5", upload_pathList.size() + "-Size");
+            Log.i("Logg5", upload_pathList +"---"+ Environment.getExternalStorageDirectory());
 
-            String filename = upload_pathList.get(ii);
+
+
+             String filename = upload_pathList.get(ii);
             File file1 = new File(filename);
 
 
@@ -483,17 +484,22 @@ public class UploadActivity extends AppCompatActivity {
 
             try {
 
+                if(file1.exists())
+                {
+                    uri = Uri.fromFile(new File(filename));
 
-                file = Uri.parse(filename);
-                uploadTask = ref.putFile(file);
+                }
+                else
+                {
+                    uri = Uri.parse(filename);
+                }
+                Log.i("Logg5 - uri",uri.toString());
 
-                Log.i("Logg5", "Upload_uri");
+                uploadTask = ref.putFile(uri);
 
             } catch (Exception e) {
                 e.printStackTrace();
-                file = Uri.fromFile(new File(filename));
-                uploadTask = ref.putFile(file);
-                Log.i("Logg5-1", "Upload_path");
+
             }
 
 
@@ -502,10 +508,16 @@ public class UploadActivity extends AppCompatActivity {
             uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                     // pb_upload.setProgress((int)(pb_upload.getProgress()+ (taskSnapshot.getBytesTransferred() * 100 / taskSnapshot.getTotalByteCount())) );
+
+
+
                     // progressBar.setProgress((int)(taskSnapshot.getBytesTransferred()*100/taskSnapshot.getTotalByteCount()));
 
 
                     Log.d("tag5", "onProgress: " + (taskSnapshot.getBytesTransferred() * 100 / taskSnapshot.getTotalByteCount()));
+
+
                 }
             });
             uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -515,7 +527,10 @@ public class UploadActivity extends AppCompatActivity {
                         @RequiresApi(api = Build.VERSION_CODES.M)
                         @Override
                         public void onSuccess(Uri uri) {
+
                             download_url_list.add(uri.toString());
+
+
                             pb_upload.setProgress(pb_upload.getProgress() + 1);
                             tv_upload.setText("Uploading(" + pb_upload.getProgress() + "/" + pb_upload.getMax() + ")...");
 
