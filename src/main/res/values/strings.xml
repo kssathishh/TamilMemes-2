@@ -2,10 +2,7 @@
     <string name="app_name">Tamil GAG</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="nav_header_title">Android Studio</string>
-    <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
-    <string name="action_settings">Settings</string>
 
     <string-array name="categories">
         <item>Funny / நகைச்சுவை</item>
@@ -45,19 +42,6 @@
 
 
     <string name="title_activity_upload">Upload Memes</string>
-    <string name="time_ago_prefix"></string>
-    <string name="time_ago_suffix">ago</string>
-    <string name="time_ago_seconds">less than a minute</string>
-    <string name="time_ago_minute">about a minute</string>
-    <string name="time_ago_minutes">%d minutes</string>
-    <string name="time_ago_hour">about an hour</string>
-    <string name="time_ago_hours">about %d hours</string>
-    <string name="time_ago_day">a day</string>
-    <string name="time_ago_days">%d days</string>
-    <string name="time_ago_month">about a month</string>
-    <string name="time_ago_months">%d months</string>
-    <string name="time_ago_year">about a year</string>
-    <string name="time_ago_years">%d years</string>
 
 
     <string name="select_category">
@@ -71,8 +55,10 @@
   Select Images<b><font color=#ff0000>*</b>
 ]]>
   </string>
-    <string name="invitation_title">Tamil GAG  Memes App</string>
-    <string name="invitation_message">Hey, Try this Memes App, it\'s Fun</string>
+
+    <string name="title_activity_splash">SplashActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
 
 </resources>
 

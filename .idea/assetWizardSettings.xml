@@ -165,11 +165,11 @@
                         <option name="values">
                           <map>
                             <entry key="assetSourceType" value="FILE" />
-                            <entry key="height" value="18" />
-                            <entry key="outputName" value="ic_twotone_thumb_up_24px" />
+                            <entry key="height" value="512" />
+                            <entry key="outputName" value="ic_1" />
                             <entry key="overrideSize" value="true" />
-                            <entry key="sourceFile" value="C:\Users\KS\Downloads\twotone-thumb_up-24px.svg" />
-                            <entry key="width" value="18" />
+                            <entry key="sourceFile" value="C:\Users\KS\Downloads\1.svg" />
+                            <entry key="width" value="512" />
                           </map>
                         </option>
                       </PersistentState>

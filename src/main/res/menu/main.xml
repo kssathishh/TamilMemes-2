@@ -1,16 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <item
-        android:id="@+id/action_feedback"
-        android:icon="@drawable/baseline_feedback_black_18"
+        android:id="@+id/action_refresh"
+        android:icon="@drawable/baseline_refresh_white_24"
         android:orderInCategory="100"
-        android:title="Feedback"
+        android:title="Refresh"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_share_app"
+        android:icon="@drawable/twotone_share_black_18"
+        android:orderInCategory="100"
+        android:title="Share App"
         app:showAsAction="never" />
+
     <item
         android:id="@+id/action_rate"
         android:icon="@drawable/baseline_star_rate_black_24"
         android:orderInCategory="100"
         android:title="Rate App"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_feedback"
+        android:icon="@drawable/baseline_feedback_black_18"
+        android:orderInCategory="100"
+        android:title="Feedback"
+        app:showAsAction="never" />
+
 </menu>

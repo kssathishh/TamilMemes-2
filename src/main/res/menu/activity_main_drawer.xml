@@ -10,14 +10,15 @@
             android:id="@+id/nav_home"
             android:icon="@drawable/sharp_home_black_24"
             android:title="Home" />
+        <item
+            android:id="@+id/nav_favorites"
+            android:icon="@drawable/twotone_thumb_up_alt_black_24"
+            android:title="Favorites" />
 
         <item android:title="Tamil Memes"
             android:id="@+id/item_tamil_memes">
-            <menu
-                android:id="@+id/menu_tamil_meme">
-                <group android:checkableBehavior="single"
-                    android:id="@+id/group_tamil_meme"
-                    >
+            <menu>
+                <group android:checkableBehavior="single">
 
                      <item
                          android:id="@+id/nav_tamil_funny"
@@ -39,7 +40,7 @@
 
 
                     <item
-                        android:id="@+id/nav_coorporate"
+                        android:id="@+id/nav_corporate"
                         android:icon="@drawable/baseline_work_black_24"
                         android:title="Corporate / கார்பொரேட்" />
                     <item
