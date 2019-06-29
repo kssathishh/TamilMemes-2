@@ -5,24 +5,31 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
-import android.support.v4.widget.SwipeRefreshLayout;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.common.reflect.TypeToken;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -31,9 +38,13 @@ import com.google.gson.Gson;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
+import javax.annotation.Nullable;
+
 import funny.tamil.gag.memes.MainActivity;
 import funny.tamil.gag.memes.R;
 import funny.tamil.gag.memes.adapter.GridViewAdapter;
+
+import static androidx.constraintlayout.widget.Constraints.TAG;
 
 
 public class FragmentFresh extends Fragment {
@@ -61,6 +72,9 @@ public class FragmentFresh extends Fragment {
     boolean end = false;
     SwipeRefreshLayout pullToRefresh;
 
+    Button btn_new_post;
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -68,6 +82,11 @@ public class FragmentFresh extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_one, null);
         getAllWidgets(rootView);
+
+
+        pullToRefresh = (SwipeRefreshLayout) rootView.findViewById(R.id.pullToRefresh);
+        btn_new_post = rootView.findViewById(R.id.btn_new_posts);
+
         setAdapter("Home");
 
 
@@ -105,7 +124,6 @@ public class FragmentFresh extends Fragment {
             }
         });
 
-        pullToRefresh = (SwipeRefreshLayout) rootView.findViewById(R.id.pullToRefresh);
         pullToRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -114,8 +132,61 @@ public class FragmentFresh extends Fragment {
                 //gridViewAdapter.notifyDataSetChanged();
 
                 end = false;
+                btn_new_post.setVisibility(View.GONE);
             }
         });
+
+        btn_new_post.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setAdapter(category_public);
+
+                end = false;
+                btn_new_post.setVisibility(View.GONE);
+            }
+        });
+
+
+
+
+
+
+
+
+
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        CollectionReference collRef = db.collection("collection1");
+
+        Query query;
+        query = collRef.orderBy("time", Query.Direction.DESCENDING);
+        query.limit(10)
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot snapshots,
+                                        @Nullable FirebaseFirestoreException e) {
+                        if (e != null) {
+                            Log.w("TAG", "listen:error", e);
+                            return;
+                        }
+
+                        for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                            switch (dc.getType()) {
+                                case ADDED:
+                                    btn_new_post.setVisibility(View.VISIBLE);
+                                     break;
+                                case MODIFIED:
+                                     break;
+                                case REMOVED:
+                                    break;
+                            }
+                        }
+
+                    }
+                });
+
+
+
 
 
         return rootView;
@@ -126,6 +197,7 @@ public class FragmentFresh extends Fragment {
 try {
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
+
     Log.v("tag3", category);
     CollectionReference collRef = db.collection("collection1");
 
@@ -156,6 +228,7 @@ try {
 
                 }
             })
+
             .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -190,6 +263,8 @@ try {
 
             });
 
+
+
 }catch (Exception e){e.printStackTrace();}
 
 
@@ -213,6 +288,11 @@ try {
     }
 
     private void setAdapter(String category) {
+
+       try {
+           pullToRefresh.setRefreshing(true);
+           gridView.smoothScrollToPosition(0);
+       }catch (Exception e){e.printStackTrace();}
 
         try {
             //--
@@ -331,6 +411,8 @@ else {
                                     gridView.setAdapter(gridViewAdapter);
 
                                     pullToRefresh.setRefreshing(false);
+                                    btn_new_post.setVisibility(View.GONE);
+
                                     flag_loading = false;
 
 
@@ -340,6 +422,8 @@ else {
                             }
 
                         });
+
+
 
             }
         } catch (Exception e) {

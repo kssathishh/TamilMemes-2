@@ -2,12 +2,15 @@ package funny.tamil.gag.memes;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.graphics.Color;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.support.v4.view.PagerAdapter;
-import android.support.v7.app.AppCompatActivity;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.StrictMode;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,14 +18,12 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.github.ybq.android.spinkit.sprite.Sprite;
-import com.github.ybq.android.spinkit.style.DoubleBounce;
-import com.github.ybq.android.spinkit.style.Pulse;
-import com.github.ybq.android.spinkit.style.WanderingCubes;
 import com.ortiz.touchview.TouchImageView;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
@@ -32,24 +33,28 @@ import java.util.ArrayList;
 import funny.tamil.gag.memes.adapter.ExtendedViewPager;
 
 
+import static androidx.constraintlayout.widget.Constraints.TAG;
+
 
 public class SwipeActivity extends AppCompatActivity {
 ArrayList<String> url_list;
 int position;
+Bitmap bmp;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_swipe);
 
-       url_list = getIntent().getStringArrayListExtra("URLList");
-       position = getIntent().getIntExtra("position",0);
+      // url_list = getIntent().getStringArrayListExtra("URLList");
+      // position = getIntent().getIntExtra("position",0);
+
+        //byte[] byteArray = getIntent().getByteArrayExtra("img_bitmap");
+       // bmp = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
 
 
 
-        Log.i("tagg3",url_list.get(0));
 
-
-        ExtendedViewPager mViewPager = (ExtendedViewPager) findViewById(R.id.view_pager);
+        final ExtendedViewPager mViewPager = (ExtendedViewPager) findViewById(R.id.view_pager);
 
         mViewPager.setAdapter(new TouchImageAdapter(url_list,position));
 
@@ -66,8 +71,16 @@ int position;
         ib_share.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String fileName =  getExternalCacheDir()+"/cache.jpg";
-                new DownloadFileFromURL().execute(url_list.get(position),"share",fileName);
+
+                Thread t = new Thread(new Runnable() {
+                    public void run() {
+                        share();
+                    }
+                });
+
+                t.start();
+
+
             }
         });
 
@@ -75,94 +88,33 @@ int position;
 
     }
 
-    class DownloadFileFromURL extends AsyncTask<String, String, String[]> {
+    public void share()
+    {
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
 
-        private ProgressDialog dialog;
-        public DownloadFileFromURL() {
-            dialog = new ProgressDialog(SwipeActivity.this);
+        Uri uri = null;
+        try {
+            File file = new File(Environment.getExternalStorageDirectory()+"/Tamil GAG/", "swipeactivity.jpg");
+            uri = Uri.fromFile(file);
 
-        }
-        @Override
-        protected void onPreExecute() {
-            dialog.setMessage("Preparing...");
-            dialog.show();
-            super.onPreExecute();
-
-        }
-
-
-        @Override
-        protected String[] doInBackground(String... f_url) {
-            int count;
-            String fileName = f_url[2];
-
-            try {
-                URL url = new URL(f_url[0]);
-                URLConnection connection = url.openConnection();
-                connection.connect();
-
-
-
-                // download the file
-                InputStream input = new BufferedInputStream(url.openStream(),
-                        8192);
-
-
-
-                // Output stream
-                OutputStream output = new FileOutputStream(fileName);
-
-                byte data[] = new byte[1024];
-
-
-                while ((count = input.read(data)) != -1) {
-
-                    output.write(data, 0, count);
-                }
-
-                // flushing output
-                output.flush();
-
-                // closing streams
-                output.close();
-                input.close();
-
-            } catch (Exception e) {
-                Log.e("Error: ", e.getMessage());
-            }
-
-
-            return f_url;
-        }
-
-
-
-
-        @Override
-        protected void onPostExecute(String[] file_url) {
-            if (dialog.isShowing()) {
-                dialog.dismiss();
-            }
-            if(file_url[1].contains("save")) {
-
-                Toast.makeText(SwipeActivity.this, "Saved at : " + file_url[2], Toast.LENGTH_LONG).show();
-            }
-
-            else if (file_url[1].contains("share")) {
-                Intent sharingIntent = new Intent(Intent.ACTION_SEND);
-                sharingIntent.setType("image/*");
-                sharingIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(file_url[2]));
-                startActivity(Intent.createChooser(sharingIntent, "Share Memes"));
-            }
-
-        }
-
+    } catch (Exception e) {
+        Log.d(TAG, "Exception  " + e.getMessage());
     }
+
+        Intent intent = new Intent(android.content.Intent.ACTION_SEND);
+        intent.putExtra(Intent.EXTRA_STREAM, uri);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.setType("image/*");
+        startActivity(intent);
+
+
+}
+
 
     class TouchImageAdapter extends PagerAdapter {
 
-        private  int[] images = { R.drawable.savage, R.drawable.vivek, R.drawable.santhanam };
-         ArrayList<String> url_list;
+        ArrayList<String> url_list;
          int position;
 
          public TouchImageAdapter(ArrayList<String> url_list, int position) {
@@ -172,31 +124,24 @@ int position;
 
          @Override
         public int getCount() {
-            return url_list.size()-position;
+             return 1;
         }
 
         @Override
         public View instantiateItem(ViewGroup container, int swipePosition) {
             TouchImageView img = new TouchImageView(container.getContext());
 
-if(position+swipePosition < url_list.size()) {
+try {
+    File file = new File(Environment.getExternalStorageDirectory()+"/Tamil GAG/", "swipeactivity.jpg");
+    img.setImageURI(Uri.fromFile(file));
+    Log.i("taggg6",file.getPath()+"Add to IV");
+
+    container.addView(img, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+
+}catch (Exception e){e.printStackTrace();}
 
 
-
-
-
-
-    Glide.with(SwipeActivity.this)
-            .load(url_list.get(position + swipePosition))
-            .placeholder(R.drawable.transparentbg)
-            .error(R.drawable.notfound)
-            .crossFade()
-            .into(img);
-}
-            //img.setImageResource(images[position]);
-
-            container.addView(img, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-            return img;
+    return img;
         }
 
         @Override
@@ -210,4 +155,6 @@ if(position+swipePosition < url_list.size()) {
         }
 
     }
+
+
     }

@@ -4,9 +4,14 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_desc">Navigation header</string>
 
+    <string name="admob_app_id">ca-app-pub-3132906276862427~2192785086</string>
+    <string name="admob_banner_id">ca-app-pub-3132906276862427/3756561462</string>
+    <string name="admob_inter_id">ca-app-pub-3132906276862427/1939657738</string>
+
     <string-array name="categories">
         <item>Funny / நகைச்சுவை</item>
         <item>Relationship / காதல்</item>
+        <item>College</item>
         <item>Sad / சோகம்</item>
         <item>Corporate / கார்பொரேட்</item>
         <item>Politics / அரசியல்</item>
@@ -14,7 +19,7 @@
         <item>Sports / விளையாட்டு</item>
         <item>Actors / நடிகர்கள்</item>
         <item>Actress / நடிகை</item>
-        <item>PUBG</item>
+        <item>Games</item>
         <item>Mokkai / மொக்கை</item>
         <item>Others / மற்றவை</item>
         <item>Funny</item>
@@ -39,7 +44,7 @@
 
 
     </string-array>
-
+    <string name="error_gif">x or y ha de ser almenys %1$dpx i el tamany de l\'arxiu no ha de ser major que %2$sM</string>
 
     <string name="title_activity_upload">Upload Memes</string>
 

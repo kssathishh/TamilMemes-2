@@ -26,7 +26,7 @@
         android:padding="5dp"
         app:srcCompat="@drawable/round_close_white_24" />
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="14">
@@ -58,7 +58,7 @@
             app:srcCompat="@drawable/transparentbg">
 
         </funny.tamil.gag.memes.adapter.ExtendedViewPager>
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ImageButton
         android:id="@+id/imageButton_share"

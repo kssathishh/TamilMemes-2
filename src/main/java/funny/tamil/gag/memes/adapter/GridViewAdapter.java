@@ -8,20 +8,24 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Animatable;
+import android.graphics.drawable.Drawable;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
+import androidx.annotation.NonNull;
+import androidx.drawerlayout.widget.DrawerLayout;
+
+import android.os.StrictMode;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -31,19 +35,20 @@ import android.widget.ToggleButton;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
-import com.github.ybq.android.spinkit.style.ChasingDots;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.common.reflect.TypeToken;
-import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.google.gson.Gson;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -51,18 +56,15 @@ import java.io.StringWriter;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.net.URLConnection;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Random;
 
+import funny.tamil.gag.memes.MainActivity;
 import funny.tamil.gag.memes.R;
 import funny.tamil.gag.memes.SwipeActivity;
-import funny.tamil.gag.memes.UploadActivity;
+
+import static androidx.constraintlayout.widget.Constraints.TAG;
 
 public class GridViewAdapter extends BaseAdapter {
 
@@ -148,6 +150,7 @@ public class GridViewAdapter extends BaseAdapter {
         View view = convertView;
 
 
+
         if (view == null) {
             view = inflater.inflate(R.layout.image_inflater, parent, false);
             holder = new ViewHolder();
@@ -173,36 +176,54 @@ public class GridViewAdapter extends BaseAdapter {
             Log.w("tag2", allItemsUrl.get(position));
 
 
-            Glide.with(context)
-                    .load(allItemsUrl.get(position))
-                    .placeholder(R.drawable.transparentbg)
-                    .error(R.drawable.reloadtransparent)
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .thumbnail(0.1f)
-                    .listener(new RequestListener() {
-                        @Override
-                        public boolean onException(Exception e, Object model, Target target, boolean isFirstResource) {
+           Glide.with(context)
+                     .load(allItemsUrl.get(position))
+                        .dontAnimate()
+                     .placeholder(R.drawable.transparentbg)
+                     .error(R.drawable.reloadtransparent)
+                     .diskCacheStrategy(DiskCacheStrategy.ALL)
+                     .thumbnail(0.2f)
+                     .into(holder.imageView);
 
-                            return false;
-                        }
 
-                        @Override
-                        public boolean onResourceReady(Object resource, Object model, Target target, boolean isFromMemoryCache, boolean isFirstResource) {
+           holder.imageButton_category.setOnClickListener(new View.OnClickListener() {
+               @Override
+               public void onClick(View v) {
+                   holder.text_category.performClick();
+               }
+           });
 
-                            return false;
-                        }
-                    })
-                    .into(holder.imageView);
+            holder.text_category.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String tv_string = holder.text_category.getText().toString();
+
+                    String category ="";
+
+                    if(tv_string.contains(","))
+                        category = tv_string.substring(0,tv_string.indexOf(",")).trim();
+                    else if(tv_string.contains("Trending"))
+                        category = "Home";
+                    else
+                        category = tv_string.trim();
+                    if (context instanceof MainActivity) {
+                        ((MainActivity)context).open_drawer(category);
+                    }
+
+                }
+            });
+
+
 
             holder.imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(context, SwipeActivity.class);
-                    intent.putExtra("URLList", allItemsUrl);
-                    intent.putExtra("position", position);
-                    context.startActivity(intent);
+
+                    new open_swipeActivity(holder).execute();
+
                 }
             });
+
             if (!allDesc.get(position).equals(""))
                 holder.text_desc.setText(allDesc.get(position));
             else
@@ -354,11 +375,17 @@ public class GridViewAdapter extends BaseAdapter {
             holder.btn_save.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String fileName = Environment.getExternalStorageDirectory().toString() + "/Tamil GAG/";
-                    new File(fileName).mkdirs();
-                    fileName += System.currentTimeMillis() + ".jpg";
+                    Thread t = new Thread(new Runnable() {
+                        public void run() {
+                            save(holder);
+                        }
+                    });
 
-                    new DownloadFileFromURL(holder).execute(allItemsUrl.get(position), "save", fileName);
+                    t.start();
+
+
+
+
 
                 }
             });
@@ -366,9 +393,16 @@ public class GridViewAdapter extends BaseAdapter {
             holder.btn_share.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String fileName = context.getExternalCacheDir() + "/cache.jpg";
-                    new DownloadFileFromURL(holder).execute(allItemsUrl.get(position), "share", fileName);
-                }
+                    Thread t = new Thread(new Runnable() {
+                        public void run() {
+                            share(holder);
+                        }
+                    });
+
+                    t.start();
+
+
+                    }
             });
 
 
@@ -376,7 +410,7 @@ public class GridViewAdapter extends BaseAdapter {
                 @Override
                 public void onClick(View v) {
                     //  dialog();
-                    dialog(allItemsUrl.get(position), all_timestamp.get(position));
+                    report_dialog(allItemsUrl.get(position), all_timestamp.get(position),all_Document_Reference.get(position));
 
                 }
             });
@@ -385,6 +419,66 @@ public class GridViewAdapter extends BaseAdapter {
         }
 
         return view;
+
+    }
+
+    private void share(ViewHolder holder) {
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
+
+        holder.imageView.buildDrawingCache();
+        Bitmap bmap = holder.imageView.getDrawingCache();
+        Uri uri = null;
+        try {
+            File file = new File(context.getExternalCacheDir(), "cache.png");
+            FileOutputStream stream = new FileOutputStream(file);
+            bmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+            stream.close();
+            stream.close();
+            uri = Uri.fromFile(file);
+        } catch (IOException e) {
+            Log.d(TAG, "IOException while trying to write file for sharing: " + e.getMessage());
+        }
+
+
+        Intent intent = new Intent(android.content.Intent.ACTION_SEND);
+        intent.putExtra(Intent.EXTRA_STREAM, uri);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.setType("image/*");
+        context.startActivity(intent);
+
+    }
+
+    private void save(ViewHolder holder) {
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
+
+        holder.imageView.buildDrawingCache();
+        Bitmap bmap = holder.imageView.getDrawingCache();
+
+        try {
+            String fileName = Environment.getExternalStorageDirectory().toString() + "/Tamil GAG/";
+            new File(fileName).mkdirs();
+            fileName += System.currentTimeMillis() + ".jpg";
+
+            File file = new File(fileName);
+            FileOutputStream stream = new FileOutputStream(file);
+            bmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+            stream.close();
+            stream.close();
+
+
+
+            Snackbar snackbar = Snackbar.make(holder.imageView, "Image Saved at "+fileName,Snackbar.LENGTH_SHORT);
+            snackbar.show();
+
+
+
+
+
+        } catch (IOException e) {
+            Log.d(TAG, "IOException while trying to write file for sharing: " + e.getMessage());
+        }
 
     }
 
@@ -422,9 +516,9 @@ public class GridViewAdapter extends BaseAdapter {
 
     }
 
-    void dialog(final String content_url, final String content_timestamp) {
+    void report_dialog(final String content_url, final String content_timestamp, final String doc_ref) {
 
-        final String[] grpname = new String[9];
+        final String[] grpname = new String[10];
         grpname[0] = "Violent or repulsive content";
         grpname[1] = "Hateful or abusive content";
         grpname[2] = "Harmful dangerous acts";
@@ -434,6 +528,7 @@ public class GridViewAdapter extends BaseAdapter {
         grpname[6] = "Spam or misleading";
         grpname[7] = "Infringes my rights";
         grpname[8] = "Others";
+        grpname[9] = "Delete";
 
 
         AlertDialog.Builder alt_bld = new AlertDialog.Builder(context);
@@ -443,7 +538,7 @@ public class GridViewAdapter extends BaseAdapter {
                 .OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
 
-                sendFeedback(content_url, content_timestamp, grpname[item]);
+                sendFeedback(content_url, content_timestamp, grpname[item],doc_ref);
                 alert.dismiss();
 
             }
@@ -455,39 +550,50 @@ public class GridViewAdapter extends BaseAdapter {
     }
 
 
-    protected void sendFeedback(String image_url, String timestamp, String violation_type) {
-        try {
-            int i = 3 / 0;
-        } catch (Exception e) {
-            ApplicationErrorReport report = new ApplicationErrorReport();
-            report.packageName = report.processName = context.getPackageName();
-            report.time = System.currentTimeMillis();
-            report.type = ApplicationErrorReport.TYPE_CRASH;
-            report.systemApp = false;
+    protected void sendFeedback(String image_url, String timestamp, String violation_type,String doc_ref) {
 
-            ApplicationErrorReport.CrashInfo crash = new ApplicationErrorReport.CrashInfo();
-            crash.exceptionClassName = e.getClass().getSimpleName();
-            crash.exceptionMessage = e.getMessage();
-
-            StringWriter writer = new StringWriter();
-            PrintWriter printer = new PrintWriter(writer);
-            e.printStackTrace(printer);
-
-            crash.stackTrace = writer.toString();
-
-            StackTraceElement stack = e.getStackTrace()[0];
-            crash.throwClassName = image_url;
-            crash.throwFileName = timestamp;
-            crash.throwMethodName = violation_type;
-            crash.throwLineNumber = stack.getLineNumber();
-
-
-            report.crashInfo = crash;
-
-            Intent intent = new Intent(Intent.ACTION_APP_ERROR);
-            intent.putExtra(Intent.EXTRA_BUG_REPORT, report);
-            context.startActivity(intent);
+        if(violation_type.toLowerCase().contains("delete"))
+        {
+            deleteMemes(doc_ref,image_url);
         }
+
+        else {
+            try {
+                int i = 3 / 0;
+            } catch (Exception e) {
+                ApplicationErrorReport report = new ApplicationErrorReport();
+                report.packageName = report.processName = context.getPackageName();
+                report.time = System.currentTimeMillis();
+                report.type = ApplicationErrorReport.TYPE_CRASH;
+                report.systemApp = false;
+
+                ApplicationErrorReport.CrashInfo crash = new ApplicationErrorReport.CrashInfo();
+                crash.exceptionClassName = e.getClass().getSimpleName();
+                crash.exceptionMessage = e.getMessage();
+
+                StringWriter writer = new StringWriter();
+                PrintWriter printer = new PrintWriter(writer);
+                e.printStackTrace(printer);
+
+                crash.stackTrace = writer.toString();
+
+                StackTraceElement stack = e.getStackTrace()[0];
+                crash.throwClassName = image_url;
+                crash.throwFileName = timestamp;
+                crash.throwMethodName = violation_type;
+                crash.throwLineNumber = stack.getLineNumber();
+
+
+                report.crashInfo = crash;
+
+                Intent intent = new Intent(Intent.ACTION_APP_ERROR);
+                intent.putExtra(Intent.EXTRA_BUG_REPORT, report);
+                context.startActivity(intent);
+            }
+        }
+
+
+
     }
 
 
@@ -622,6 +728,69 @@ public class GridViewAdapter extends BaseAdapter {
     }
 
 
+    private void deleteMemes(final String docReference,final String img_url) {
+
+
+            final EditText taskEditText = new EditText(context);
+            AlertDialog dialog = new AlertDialog.Builder(context)
+                    .setTitle("Admin Password")
+
+                    .setView(taskEditText)
+                    .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            String task = String.valueOf(taskEditText.getText());
+                            if(task.contains("asdfghjkl"))
+                            {
+try {
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    db.document(docReference).delete();
+
+}catch (Exception e){e.printStackTrace();}
+
+    try {
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference httpsReference = storage.getReferenceFromUrl(img_url);
+        httpsReference.delete();
+
+    }catch (Exception e){e.printStackTrace();}
+
+
+
+
+                            }
+
+
+
+                        }
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .create();
+            dialog.show();
+
+
+
+
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -654,6 +823,8 @@ public class GridViewAdapter extends BaseAdapter {
             return  R.drawable.baseline_favorite_black_24;
         else if (category.toLowerCase().contains("sad"))
             return  R.drawable.baseline_sentiment_very_dissatisfied_black_24;
+        else if (category.toLowerCase().contains("college"))
+            return  R.drawable.baseline_local_library_black_24;
         else if (category.toLowerCase().contains("corporate"))
             return  R.drawable.baseline_work_black_24;
 
@@ -667,7 +838,7 @@ public class GridViewAdapter extends BaseAdapter {
             return  R.drawable.actor;
         else if (category.toLowerCase().contains("actress"))
             return  R.drawable.actress;
-        else if (category.toLowerCase().contains("pubg"))
+        else if (category.toLowerCase().contains("games"))
             return  R.drawable.pubg;
         else if (category.toLowerCase().contains("mokkai"))
             return  R.drawable.mokkai;
@@ -708,24 +879,111 @@ public class GridViewAdapter extends BaseAdapter {
 
     public String timeago(long timestamp) {
     final long diff = System.currentTimeMillis() - timestamp;
-    if (diff < MINUTE_MILLIS) {
-        return "just now";
-    } else if (diff < 2 * MINUTE_MILLIS) {
-        return "a minute ago";
-    } else if (diff < 50 * MINUTE_MILLIS) {
-        return diff / MINUTE_MILLIS + " m";
-    } else if (diff < 90 * MINUTE_MILLIS) {
-        return "an hour ago";
-    } else if (diff < 24 * HOUR_MILLIS) {
-        return diff / HOUR_MILLIS + " h";
-    } else if (diff < 48 * HOUR_MILLIS) {
-        return "yesterday";
+    if (diff < 60 * MINUTE_MILLIS) {
+        return diff / MINUTE_MILLIS + " M";
+    }  else if (diff < 24 * HOUR_MILLIS) {
+        return diff / HOUR_MILLIS + " H";
     } else {
-        return diff / DAY_MILLIS + " days";
+        return diff / DAY_MILLIS + " D";
     }
 
 
 }
+
+
+    public static Bitmap retriveVideoFrameFromVideo(String videoPath)
+            throws Throwable {
+        Bitmap bitmap = null;
+        MediaMetadataRetriever mediaMetadataRetriever = null;
+        try {
+            mediaMetadataRetriever = new MediaMetadataRetriever();
+            if (Build.VERSION.SDK_INT >= 14)
+                mediaMetadataRetriever.setDataSource(videoPath, new HashMap<String, String>());
+            else
+                mediaMetadataRetriever.setDataSource(videoPath);
+
+            bitmap = mediaMetadataRetriever.getFrameAtTime(1, MediaMetadataRetriever.OPTION_CLOSEST);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new Throwable(
+                    "Exception in retriveVideoFrameFromVideo(String videoPath)"
+                            + e.getMessage());
+
+        } finally {
+            if (mediaMetadataRetriever != null) {
+                mediaMetadataRetriever.release();
+            }
+        }
+        return bitmap;
+    }
+
+
+    class open_swipeActivity extends AsyncTask<String,String,String>{
+
+        ViewHolder holder;
+
+        final ProgressDialog  progressDialog = new ProgressDialog(context);
+
+
+
+
+        open_swipeActivity(ViewHolder holder){
+            this.holder = holder;
+
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+
+            progressDialog.setMessage("Opening...");
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDialog.show();
+
+            super.onPreExecute();
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+
+
+            holder.imageView.buildDrawingCache();
+            Bitmap bitmap = holder.imageView.getDrawingCache();
+
+            ByteArrayOutputStream bStream = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, bStream);
+            byte[] byteArray = bStream.toByteArray();
+
+            try {
+                File file = new File(Environment.getExternalStorageDirectory()+"/Tamil GAG/" , "swipeactivity.jpg");
+
+                FileOutputStream stream = new FileOutputStream(file);
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                stream.close();
+                Log.i("taggg6",file.getTotalSpace()+"size");
+
+            }catch (Exception e){e.printStackTrace();}
+
+
+
+
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            if(progressDialog.isShowing())
+                 progressDialog.dismiss();
+
+
+            Intent intent = new Intent(context, SwipeActivity.class);
+            context.startActivity(intent);
+
+
+            super.onPostExecute(s);
+        }
+    }
 
 
 }
@@ -739,4 +997,7 @@ class ViewHolder {
     Button btn_share;
     Button btn_save;
     ImageButton ib_popup_menu;
+    DrawerLayout drawerLayout;
 }
+
+

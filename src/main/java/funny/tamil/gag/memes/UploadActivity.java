@@ -1,31 +1,36 @@
 package funny.tamil.gag.memes;
 
 import android.Manifest;
-import android.content.ClipData;
-import android.content.ContentUris;
-import android.content.Context;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.media.ExifInterface;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Environment;
-import android.provider.DocumentsContract;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import com.google.android.material.snackbar.Snackbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.Toolbar;
+
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.util.Log;
 import android.view.Gravity;
@@ -44,20 +49,19 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
-import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.nileshp.multiphotopicker.photopicker.activity.PickImageActivity;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.security.spec.EncodedKeySpec;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -149,10 +153,6 @@ public class UploadActivity extends AppCompatActivity {
 
 
 
-
-
-
-
         Window window = UploadActivity.this.getWindow();
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
@@ -230,6 +230,12 @@ public class UploadActivity extends AppCompatActivity {
 
 
     private void saveMemes() {
+
+        final ProgressDialog  progressDialog = new ProgressDialog(this);
+
+        progressDialog.setTitle("Saving...");
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
         final ArrayList<Boolean> uploaded = new ArrayList<Boolean>();
 
@@ -240,6 +246,8 @@ public class UploadActivity extends AppCompatActivity {
 
         if(pathList.size() == download_url_list.size() ) {
 
+            progressDialog.setMax(download_url_list.size());
+            progressDialog.show();
 
             for ( int i = 0; i < download_url_list.size(); i++) {
 
@@ -264,6 +272,7 @@ public class UploadActivity extends AppCompatActivity {
                 doc_upload.put("flag_string", "");
                 doc_upload.put("flag_integer", 0);
                 doc_upload.put("flag_boolean", false);
+                doc_upload.put("timestamp",System.currentTimeMillis());
 
 
 
@@ -276,13 +285,11 @@ public class UploadActivity extends AppCompatActivity {
                                 uploaded.add(true);
 
                                 //  if(uploaded.size() == download_url_list.size())
-                                Snackbar snackbar = Snackbar
-                                        .make(findViewById(R.id.coordinatorLayout), uploaded.size() + "/" + download_url_list.size() + " Memes Uploaded Successfully!!!", Snackbar.LENGTH_LONG);
-                                snackbar.show();
+                                progressDialog.setProgress(uploaded.size());
 
                                 if(uploaded.size() == download_url_list.size())
                                 {
-
+                                    progressDialog.dismiss();
                                     AlertDialog.Builder builder = new AlertDialog.Builder(UploadActivity.this);
                                     builder.setMessage("Memes uploaded Successfully.")
                                             .setTitle("Upload Successful")
@@ -295,8 +302,20 @@ public class UploadActivity extends AppCompatActivity {
                                         }
                                     });
 
-                                    AlertDialog dialog = builder.create();
+                                    final AlertDialog dialog = builder.create();
                                     dialog.show();
+
+                                    new CountDownTimer(3000, 1000) {
+                                        @Override
+                                        public void onTick(long millisUntilFinished) {
+
+                                            }
+
+                                        @Override
+                                        public void onFinish() {
+                                              dialog.dismiss();
+                                              finish();
+                                        }       }.start();
 
                                 }
 
@@ -362,7 +381,7 @@ public class UploadActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(UploadActivity.this);
         builder.setTitle("Select Category");
 
-        boolean[] checkedItems = new boolean[]{false, false, false,false, false,false, false,false, false,false, false,false, false, false ,false, false, false, false, false,false, false, false, false, false,false, false, false, false, false,false, false, false, false, false,false, false, false, false, false,false, false, false, false, false,false, false, false, false, false,false, false, false, false, false}; //this will checked the items when user open the dialog
+        boolean[] checkedItems = new boolean[]{false, false,false,false, false,false, false,false, false,false, false,false, false,false, false, false ,false, false, false, false, false,false, false, false, false, false,false, false, false, false, false,false, false, false, false, false,false, false, false, false, false,false, false, false, false, false,false, false, false, false, false,false, false, false, false, false}; //this will checked the items when user open the dialog
         builder.setIcon(R.drawable.twotone_category_black_48);
         builder.setMultiChoiceItems(listItems,checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
             @Override
@@ -460,18 +479,15 @@ public class UploadActivity extends AppCompatActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     public void uploadImages(final ArrayList<String> upload_pathList) {
-        final ProgressBar pb_upload = findViewById(R.id.progressBar_upload);
-        final TextView tv_upload = findViewById(R.id.tv_upload);
-        download_url_list.clear();
-        tv_upload.setText("Uploading...");
-        tv_upload.setTextColor(getColor(R.color.red));
-        pb_upload.setVisibility(View.VISIBLE);
-        pb_upload.setMax(upload_pathList.size());
-        pb_upload.setProgress(0);
+       download_url_list.clear();
+
         Uri uri = null;
+
         UploadTask uploadTask = null;
         for (int ii = 0; ii < upload_pathList.size(); ii++) {
             Log.i("Logg5", upload_pathList +"---"+ Environment.getExternalStorageDirectory());
+
+
 
 
 
@@ -488,14 +504,30 @@ public class UploadActivity extends AppCompatActivity {
                 {
                     uri = Uri.fromFile(new File(filename));
 
+                    Log.i("Loggg5 - uri","file.exists");
+
+
                 }
                 else
                 {
                     uri = Uri.parse(filename);
-                }
-                Log.i("Logg5 - uri",uri.toString());
+                    Log.i("Loggg5 - uri","file not exists");
 
-                uploadTask = ref.putFile(uri);
+                }
+
+
+                String compressed_file_name = uri.toString();
+
+
+                new compress_async(upload_pathList.size()).execute(uri.toString(),ii+".jpg");
+
+
+                Log.i("Loggg5 - uri",compressed_file_name);
+
+
+
+
+              //  uploadTask = ref.putFile(Uri.parse(compressed_file_name));
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -504,7 +536,7 @@ public class UploadActivity extends AppCompatActivity {
 
 
 
-
+/*
             uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
@@ -528,6 +560,7 @@ public class UploadActivity extends AppCompatActivity {
                         @Override
                         public void onSuccess(Uri uri) {
 
+
                             download_url_list.add(uri.toString());
 
 
@@ -538,13 +571,17 @@ public class UploadActivity extends AppCompatActivity {
                                 tv_upload.setText("Uploaded Successfully");
                                 tv_upload.setTextColor(getColor(R.color.green));
                                 pb_upload.setVisibility(View.GONE);
+                                File file = new File(Environment.getDataDirectory() , "compressed/images");
+                                if (file.exists()) {
+                                 //   file.delete();
+                                }
                             }
 
                         }
                     });
                 }
             });
-
+*/
 
         }
     }
@@ -558,6 +595,296 @@ public class UploadActivity extends AppCompatActivity {
 
 
 
+    public String compressImage(String imageUri,String filename1) {
 
+        String  filePath= null;
+
+                try{
+                    filePath = getRealPathFromURI(imageUri);
+                }catch (Exception e){}
+
+        if(filePath == null)
+        {
+            filePath = Environment.getExternalStorageDirectory()+"/Tamil GAG/compress.jpg";
+            try {
+                Bitmap bmp = MediaStore.Images.Media.getBitmap(this.getContentResolver(), Uri.parse(imageUri));
+
+                File f = new File( filePath);
+                f.createNewFile();
+
+                Bitmap bitmap = bmp;
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100 /*ignored for PNG*/, bos);
+                byte[] bitmapdata = bos.toByteArray();
+
+                FileOutputStream fos = new FileOutputStream(f);
+                fos.write(bitmapdata);
+                fos.flush();
+                fos.close();
+
+            }catch (Exception e){e.printStackTrace();}
+
+
+        }
+
+        Bitmap scaledBitmap = null;
+        Log.i("taggg8",filePath+"-");
+        Bitmap bmp = null;
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = false;
+        int actualHeight = 0;
+        int actualWidth = 0;
+
+        bmp = BitmapFactory.decodeFile(filePath, options);
+        actualHeight = options.outHeight;
+        actualWidth = options.outWidth;
+        Log.i("taggg8",actualHeight+"-");
+
+
+
+      /*
+        if( filePath != null)
+        {
+            Log.i("taggg8", filePath+"not null" );
+
+
+            bmp = BitmapFactory.decodeFile(filePath, options);
+            actualHeight = options.outHeight;
+            actualWidth = options.outWidth;
+
+
+        }
+
+        else
+        {
+            Log.i("taggg8",imageUri+"null");
+
+
+               bmp = MediaStore.Images.Media.getBitmap(this.getContentResolver(), Uri.parse(imageUri));
+
+               actualHeight = bmp.getHeight();
+               actualWidth = bmp.getWidth();
+                Log.i("taggg8",bmp.getHeight()+"null");
+
+
+        }
+*/
+
+
+
+
+//      max Height and width values of the compressed image is taken as 816x612
+
+        float maxHeight = 720.0f;
+        float maxWidth = 1280.0f;
+        float imgRatio = actualWidth / actualHeight;
+        float maxRatio = maxWidth / maxHeight;
+
+//      width and height values are set maintaining the aspect ratio of the image
+
+        if (actualHeight > maxHeight || actualWidth > maxWidth) {
+            if (imgRatio < maxRatio) {               imgRatio = maxHeight / actualHeight;                actualWidth = (int) (imgRatio * actualWidth);               actualHeight = (int) maxHeight;             } else if (imgRatio > maxRatio) {
+                imgRatio = maxWidth / actualWidth;
+                actualHeight = (int) (imgRatio * actualHeight);
+                actualWidth = (int) maxWidth;
+            } else {
+                actualHeight = (int) maxHeight;
+                actualWidth = (int) maxWidth;
+
+            }
+        }
+
+//      setting inSampleSize value allows to load a scaled down version of the original image
+
+        options.inSampleSize = calculateInSampleSize(options, actualWidth, actualHeight);
+
+
+
+//      this options allow android to claim the bitmap memory if it runs low on memory
+        options.inPurgeable = true;
+        options.inInputShareable = true;
+        options.inTempStorage = new byte[16 * 1024];
+
+        try {
+//          load the bitmap from its path
+
+
+        } catch (OutOfMemoryError exception) {
+            exception.printStackTrace();
+
+        }
+        try {
+            scaledBitmap = Bitmap.createBitmap(actualWidth, actualHeight,Bitmap.Config.ARGB_8888);
+        } catch (OutOfMemoryError exception) {
+            exception.printStackTrace();
+        }
+
+        float ratioX = actualWidth / (float) options.outWidth;
+        float ratioY = actualHeight / (float) options.outHeight;
+        float middleX = actualWidth / 2.0f;
+        float middleY = actualHeight / 2.0f;
+
+        Matrix scaleMatrix = new Matrix();
+        scaleMatrix.setScale(ratioX, ratioY, middleX, middleY);
+
+        Canvas canvas = new Canvas(scaledBitmap);
+        canvas.setMatrix(scaleMatrix);
+        canvas.drawBitmap(bmp, middleX - bmp.getWidth() / 2, middleY - bmp.getHeight() / 2, new Paint(Paint.FILTER_BITMAP_FLAG));
+
+//      check the rotation of the image and display it properly
+        ExifInterface exif;
+        try {
+            exif = new ExifInterface(filePath);
+
+            int orientation = exif.getAttributeInt(
+                    ExifInterface.TAG_ORIENTATION, 0);
+            Log.d("EXIF", "Exif: " + orientation);
+            Matrix matrix = new Matrix();
+            if (orientation == 6) {
+                matrix.postRotate(90);
+                Log.d("EXIF", "Exif: " + orientation);
+            } else if (orientation == 3) {
+                matrix.postRotate(180);
+                Log.d("EXIF", "Exif: " + orientation);
+            } else if (orientation == 8) {
+                matrix.postRotate(270);
+                Log.d("EXIF", "Exif: " + orientation);
+            }
+            scaledBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0,
+                    scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix,
+                    true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        FileOutputStream out = null;
+        File file = new File(Environment.getExternalStorageDirectory() , "/Tamil GAG/Upload/");
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+
+        String filename = (file.getAbsolutePath() + filename1);
+        try {
+            out = new FileOutputStream(filename);
+
+//          write the compressed bitmap at the destination specified by filename.
+            scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return filename;
+
+    }
+
+    public int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+            final int heightRatio = Math.round((float) height/ (float) reqHeight);
+            final int widthRatio = Math.round((float) width / (float) reqWidth);
+            inSampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;      }       final float totalPixels = width * height;       final float totalReqPixelsCap = reqWidth * reqHeight * 2;       while (totalPixels / (inSampleSize * inSampleSize) > totalReqPixelsCap) {
+            inSampleSize++;
+        }
+
+        return inSampleSize;
+    }
+    private String getRealPathFromURI(String contentURI) {
+        Uri contentUri = Uri.parse(contentURI);
+        Cursor cursor = getContentResolver().query(contentUri, null, null, null, null);
+        if (cursor == null) {
+            return contentUri.getPath();
+        } else {
+            cursor.moveToFirst();
+            int index = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+            return cursor.getString(index);
+        }
+    }
+
+    class compress_async extends AsyncTask <String,String,String> {
+
+        final ProgressBar pb_upload = findViewById(R.id.progressBar_upload);
+        final TextView tv_upload = findViewById(R.id.tv_upload);
+        UploadTask uploadTask = null;
+
+
+
+        @RequiresApi(api = Build.VERSION_CODES.M)
+        compress_async(int max_size)
+        {
+            tv_upload.setText("Uploading...");
+            tv_upload.setTextColor(getColor(R.color.red));
+            pb_upload.setVisibility(View.VISIBLE);
+            pb_upload.setMax(max_size);
+            pb_upload.setProgress(0);
+        }
+        @Override
+        protected String doInBackground(String... strings) {
+            return compressImage(strings[0],strings[1]);
+
+        }
+
+
+
+
+        @Override
+        protected void onPostExecute(String compressed_file_name) {
+            Date c = Calendar.getInstance().getTime();
+            SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy");
+            String formattedDate = df.format(c);
+            String filename  = System.currentTimeMillis()+"-"+ android.os.Build.MODEL+"-";
+
+            final File compress_file = new File(compressed_file_name);
+            if(compress_file.exists())
+                filename +=compress_file.getName();
+
+
+            final StorageReference ref = FirebaseStorage.getInstance().getReference().child("images/" +formattedDate+"/"+  filename);
+
+            uploadTask = ref.putFile(Uri.parse("file://"+compressed_file_name));
+
+
+            uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+
+                }
+            });
+            uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @RequiresApi(api = Build.VERSION_CODES.M)
+                        @Override
+                        public void onSuccess(Uri uri) {
+
+
+                            download_url_list.add(uri.toString());
+
+
+                            pb_upload.setProgress(pb_upload.getProgress() + 1);
+                            tv_upload.setText("Uploading(" + pb_upload.getProgress() + "/" + pb_upload.getMax() + ")...");
+
+                            if (pb_upload.getProgress() == pb_upload.getMax()) {
+
+                                tv_upload.setText("Uploaded Successfully");
+                                tv_upload.setTextColor(getColor(R.color.green));
+                                pb_upload.setVisibility(View.GONE);
+
+                            }
+                            if (compress_file.exists()) {
+                                compress_file.delete();
+                            }
+                        }
+                    });
+                }
+            });
+
+
+        }
+    }
 
 }

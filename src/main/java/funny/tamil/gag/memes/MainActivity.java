@@ -1,26 +1,49 @@
 package funny.tamil.gag.memes;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.ApplicationErrorReport;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.NavigationView;
-import android.support.design.widget.TabLayout;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.view.ViewPager;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.view.menu.MenuBuilder;
-import android.support.v7.widget.Toolbar;
+
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
+import com.google.firebase.messaging.FirebaseMessaging;
+
+import androidx.core.app.NotificationCompat;
+import androidx.core.view.GravityCompat;
+import androidx.viewpager.widget.ViewPager;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.menu.MenuBuilder;
+import androidx.appcompat.widget.Toolbar;
+
+import android.provider.Settings;
 import android.text.SpannableString;
 import android.text.style.TextAppearanceSpan;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,9 +52,13 @@ import android.widget.RatingBar;
 import android.widget.Toast;
 
 
-
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import funny.tamil.gag.memes.adapter.ViewPagerAdapter;
 import funny.tamil.gag.memes.fragment.FragmentTrending;
@@ -77,15 +104,25 @@ public class MainActivity extends AppCompatActivity
         setTitle("Home");
 
 
+        MobileAds.initialize(this, getString(R.string.admob_app_id));
+        AdView mAdView = findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
 
 
+        FirebaseMessaging.getInstance().subscribeToTopic("all");
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+//---------------------
+                FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, UploadActivity.class);
+                //Intent intent = new Intent(MainActivity.this, UploadTestActivity.class);
                 startActivity(intent);
+
+
+
             }
         });
 
@@ -261,6 +298,8 @@ public class MainActivity extends AppCompatActivity
            category = "Funny / நகைச்சுவை";
         else if (id == R.id.nav_relationship)
             category = "Relationship / காதல்";
+        else if (id == R.id.nav_college)
+            category = "College";
         else if (id == R.id.nav_sad)
             category = "Sad / சோகம்";
         else if (id == R.id.nav_politics)
@@ -276,7 +315,7 @@ public class MainActivity extends AppCompatActivity
         else if (id == R.id.nav_actress)
             category = "Actress / நடிகை";
         else if (id == R.id.nav_pubg)
-            category = "PUBG";
+            category = "Games";
         else if (id == R.id.nav_mokkai)
             category = "Mokkai / மொக்கை";
         else if (id == R.id.nav_other_tamil)
@@ -468,5 +507,16 @@ public class MainActivity extends AppCompatActivity
             startActivity(intent);
         }   }
 
+
+        public void  open_drawer(String cat){
+
+
+        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+            drawerLayout.openDrawer(Gravity.LEFT,true);
+
+
+
+
+        }
 
 }
