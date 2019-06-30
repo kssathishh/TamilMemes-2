@@ -15,6 +15,7 @@ import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
 import androidx.annotation.NonNull;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -39,6 +40,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.common.reflect.TypeToken;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -92,6 +94,8 @@ public class GridViewAdapter extends BaseAdapter {
     AlertDialog alert;
     private LayoutInflater inflater;
     Context context;
+    private FirebaseAnalytics mFirebaseAnalytics;
+
 
     public GridViewAdapter(Context context, ArrayList<String> images, ArrayList<String> desc, ArrayList<String> category, ArrayList<String> timestamp, ArrayList<Integer> upvotes, ArrayList<Integer> downvotes, ArrayList<String> document_Reference) {
         inflater = LayoutInflater.from(context);
@@ -122,6 +126,8 @@ public class GridViewAdapter extends BaseAdapter {
         Log.w("tag2", images.size() + "");
 
         Log.d("RecyclerSnapAdapter", "Create Image RecyclerSnapAdapter " + allItemsUrl.size());
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(context);
+
     }
 
     GridViewAdapter(Context context) {
@@ -196,6 +202,12 @@ public class GridViewAdapter extends BaseAdapter {
             holder.text_category.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+
+                    Bundle params = new Bundle();
+                    params.putString("activity", "Gridviewadapter-click");
+                    params.putString("button_name", "category_text");
+                    mFirebaseAnalytics.logEvent("buttons_clicked", params);
+
                     String tv_string = holder.text_category.getText().toString();
 
                     String category ="";
@@ -219,15 +231,28 @@ public class GridViewAdapter extends BaseAdapter {
                 @Override
                 public void onClick(View v) {
 
-                    new open_swipeActivity(holder).execute();
+                    Bundle params = new Bundle();
+                    params.putString("activity", "Gridviewadapter-click");
+                    params.putString("button_name", "image_click");
+                    mFirebaseAnalytics.logEvent("buttons_clicked", params);
+
+                    new open_swipeActivity(holder).execute(0);
 
                 }
             });
 
-            if (!allDesc.get(position).equals(""))
-                holder.text_desc.setText(allDesc.get(position));
-            else
+
+
+            if (allDesc.get(position).isEmpty())
+
                 holder.text_desc.setVisibility(View.GONE);
+
+                else
+                holder.text_desc.setText(allDesc.get(position));
+
+
+
+
 
 
             String category = all_category.get(position).replace('[', ' ').replace(']', ' ');
@@ -298,6 +323,12 @@ public class GridViewAdapter extends BaseAdapter {
                 @Override
                 public void onClick(View v) {
 
+
+                    Bundle params = new Bundle();
+                    params.putString("activity", "Gridviewadapter-click");
+                    params.putString("button_name", "upvote");
+                    mFirebaseAnalytics.logEvent("buttons_clicked", params);
+
                     Log.i("tagg5 - before", position + "-" + all_upvotes);
                     if (holder.btn_upvote.isChecked()) {
                         holder.btn_upvote.setTextColor(context.getResources().getColor(R.color.color_blue_button));
@@ -333,6 +364,11 @@ public class GridViewAdapter extends BaseAdapter {
             holder.btn_downvote.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+
+                    Bundle params = new Bundle();
+                    params.putString("activity", "Gridviewadapter-click");
+                    params.putString("button_name", "downvote");
+                    mFirebaseAnalytics.logEvent("buttons_clicked", params);
 
                     Log.i("tagg5 - before", position + "-" + all_downvotes);
 
@@ -375,6 +411,12 @@ public class GridViewAdapter extends BaseAdapter {
             holder.btn_save.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+
+                    Bundle params = new Bundle();
+                    params.putString("activity", "Gridviewadapter-click");
+                    params.putString("button_name", "save");
+                    mFirebaseAnalytics.logEvent("buttons_clicked", params);
+
                     Thread t = new Thread(new Runnable() {
                         public void run() {
                             save(holder);
@@ -393,8 +435,14 @@ public class GridViewAdapter extends BaseAdapter {
             holder.btn_share.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    Bundle params = new Bundle();
+                    params.putString("activity", "Gridviewadapter-click");
+                    params.putString("button_name", "share");
+                    mFirebaseAnalytics.logEvent("buttons_clicked", params);
                     Thread t = new Thread(new Runnable() {
                         public void run() {
+
+
                             share(holder);
                         }
                     });
@@ -434,7 +482,7 @@ public class GridViewAdapter extends BaseAdapter {
             FileOutputStream stream = new FileOutputStream(file);
             bmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
             stream.close();
-            stream.close();
+
             uri = Uri.fromFile(file);
         } catch (IOException e) {
             Log.d(TAG, "IOException while trying to write file for sharing: " + e.getMessage());
@@ -918,7 +966,7 @@ try {
     }
 
 
-    class open_swipeActivity extends AsyncTask<String,String,String>{
+    class open_swipeActivity extends AsyncTask<Integer,Integer,Integer>{
 
         ViewHolder holder;
 
@@ -932,6 +980,8 @@ try {
 
         }
 
+
+
         @Override
         protected void onPreExecute() {
 
@@ -944,44 +994,48 @@ try {
         }
 
         @Override
-        protected String doInBackground(String... strings) {
+        protected Integer doInBackground(Integer... ints) {
+
+try {
+    holder.imageView.buildDrawingCache();
+    Bitmap bitmap = holder.imageView.getDrawingCache();
+
+    ByteArrayOutputStream bStream = new ByteArrayOutputStream();
+    bitmap.compress(Bitmap.CompressFormat.PNG, 100, bStream);
+    byte[] byteArray = bStream.toByteArray();
+
+        File file = new File(Environment.getExternalStorageDirectory() + "/Tamil GAG/", "swipeactivity.jpg");
+    if(file.exists())
+        file.delete();
+
+        FileOutputStream stream = new FileOutputStream(file);
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        stream.close();
+        Log.i("taggg6", file.getTotalSpace() + "size");
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
 
 
-            holder.imageView.buildDrawingCache();
-            Bitmap bitmap = holder.imageView.getDrawingCache();
 
-            ByteArrayOutputStream bStream = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, bStream);
-            byte[] byteArray = bStream.toByteArray();
-
-            try {
-                File file = new File(Environment.getExternalStorageDirectory()+"/Tamil GAG/" , "swipeactivity.jpg");
-
-                FileOutputStream stream = new FileOutputStream(file);
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                stream.close();
-                Log.i("taggg6",file.getTotalSpace()+"size");
-
-            }catch (Exception e){e.printStackTrace();}
-
-
-
-
-
-            return null;
+            return ints[0];
         }
 
         @Override
-        protected void onPostExecute(String s) {
+        protected void onPostExecute(Integer position) {
             if(progressDialog.isShowing())
                  progressDialog.dismiss();
 
 
             Intent intent = new Intent(context, SwipeActivity.class);
+            intent.putExtra("URLList", allItemsUrl);
+            intent.putExtra("position", position);
+
             context.startActivity(intent);
 
 
-            super.onPostExecute(s);
+            super.onPostExecute(position);
         }
     }
 

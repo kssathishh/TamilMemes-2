@@ -7,8 +7,8 @@ android {
         applicationId "funny.tamil.gag.memes"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 5
-        versionName "1.5"
+        versionCode 6
+        versionName "1.6"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -48,7 +48,9 @@ dependencies {
     implementation 'com.github.ybq:Android-SpinKit:1.2.0'
     implementation 'gr.pantrif:easy-android-splash-screen:0.0.1'
     implementation 'com.google.firebase:firebase-messaging:19.0.1'
+
     implementation 'com.google.android.gms:play-services-ads:18.0.0'
+
 
     implementation 'com.zhihu.android:matisse:0.5.2-beta4'
     //implementation 'com.writingminds:FFmpegAndroid:0.3.2'

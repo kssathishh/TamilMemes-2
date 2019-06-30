@@ -19,6 +19,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.common.reflect.TypeToken;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -61,6 +62,8 @@ public class FragmentTrending extends Fragment {
     String category_public = "Home";
     boolean end = false;
     SwipeRefreshLayout pullToRefresh;
+    private FirebaseAnalytics mFirebaseAnalytics;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -71,6 +74,8 @@ public class FragmentTrending extends Fragment {
         getAllWidgets(rootView);
         setAdapter("Home");
 
+
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(getContext());
 
         ((MainActivity)getActivity()).setFragmentRefreshListener_1(new MainActivity.FragmentRefreshListener_1() {
             @Override
@@ -100,6 +105,12 @@ public class FragmentTrending extends Fragment {
                     {
                         flag_loading = true;
                         additems(category_public);
+
+                        Bundle params = new Bundle();
+                        params.putString("activity", "FragmentTrending");
+                        params.putString("event_name", "Add 10 more itmes");
+                        mFirebaseAnalytics.logEvent("events_Fragment_Trending", params);
+
                     }
                 }
             }
@@ -109,6 +120,10 @@ public class FragmentTrending extends Fragment {
         pullToRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                Bundle params = new Bundle();
+                params.putString("activity", "FragmentTrending");
+                params.putString("event_name", "Pull To Refresh");
+                mFirebaseAnalytics.logEvent("events_Fragment_Trending", params);
 
                 setAdapter(category_public);
                 //gridViewAdapter.notifyDataSetChanged();
@@ -122,6 +137,7 @@ public class FragmentTrending extends Fragment {
     }
 
     private void additems(String category) {
+
 
 try{
 

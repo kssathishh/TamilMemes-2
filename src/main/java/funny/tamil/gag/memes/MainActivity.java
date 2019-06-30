@@ -1,5 +1,6 @@
 package funny.tamil.gag.memes;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
@@ -11,6 +12,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -26,11 +28,14 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 import com.google.firebase.messaging.FirebaseMessaging;
 
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.viewpager.widget.ViewPager;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -92,6 +97,7 @@ public class MainActivity extends AppCompatActivity
 
     private FragmentRefreshListener_2 fragmentRefreshListener_2;
 
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     String category="Home";
 
@@ -109,6 +115,7 @@ public class MainActivity extends AppCompatActivity
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
 
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         FirebaseMessaging.getInstance().subscribeToTopic("all");
 
@@ -145,7 +152,14 @@ public class MainActivity extends AppCompatActivity
 
         setNavigationStyle(navigationView);
 
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
 
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    104);
+        }
 
 
     }
@@ -376,7 +390,10 @@ public class MainActivity extends AppCompatActivity
 
 
 
-
+        Bundle params = new Bundle();
+        params.putString("activity", "MainActivity-Drawer");
+        params.putString("category_clicked", category);
+        mFirebaseAnalytics.logEvent("category", params);
 
         if(getFragmentRefreshListener_1()!=null){
             getFragmentRefreshListener_1().onRefresh_fone(category);

@@ -23,6 +23,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.common.reflect.TypeToken;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
@@ -73,6 +74,7 @@ public class FragmentFresh extends Fragment {
     SwipeRefreshLayout pullToRefresh;
 
     Button btn_new_post;
+    private FirebaseAnalytics mFirebaseAnalytics;
 
 
     @Override
@@ -82,6 +84,8 @@ public class FragmentFresh extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_one, null);
         getAllWidgets(rootView);
+
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(getContext());
 
 
         pullToRefresh = (SwipeRefreshLayout) rootView.findViewById(R.id.pullToRefresh);
@@ -119,6 +123,10 @@ public class FragmentFresh extends Fragment {
                     {
                         flag_loading = true;
                         additems(category_public);
+                        Bundle params = new Bundle();
+                        params.putString("activity", "FragmentFresh");
+                        params.putString("event_name", "Add 10 more itmes");
+                        mFirebaseAnalytics.logEvent("events_Fragment_Fresh", params);
                     }
                 }
             }
@@ -127,6 +135,11 @@ public class FragmentFresh extends Fragment {
         pullToRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+
+                Bundle params = new Bundle();
+                params.putString("activity", "FragmentFresh");
+                params.putString("event_name", "Pull To Refresh");
+                mFirebaseAnalytics.logEvent("events_Fragment_Fresh", params);
 
                 setAdapter(category_public);
                 //gridViewAdapter.notifyDataSetChanged();
@@ -139,7 +152,14 @@ public class FragmentFresh extends Fragment {
         btn_new_post.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                Bundle params = new Bundle();
+                params.putString("activity", "FragmentFresh");
+                params.putString("event_name", "New Post Button");
+                mFirebaseAnalytics.logEvent("events_Fragment_Fresh", params);
+
                 setAdapter(category_public);
+
 
                 end = false;
                 btn_new_post.setVisibility(View.GONE);
