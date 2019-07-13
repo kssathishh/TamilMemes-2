@@ -19,6 +19,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 
 import com.google.android.gms.ads.AdRequest;
@@ -57,6 +58,7 @@ import android.widget.RatingBar;
 import android.widget.Toast;
 
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -163,6 +165,8 @@ public class MainActivity extends AppCompatActivity
 
 
     }
+
+
 
     public void setNavigationStyle(NavigationView navigationView) {
 
@@ -308,8 +312,10 @@ public class MainActivity extends AppCompatActivity
              category = "Home";
         else if (id == R.id.nav_favorites)
             category = "Favorites";
+        else if (id == R.id.nav_trending)
+            category = "Trending";
         else if (id == R.id.nav_tamil_funny)
-           category = "Funny / நகைச்சுவை";
+            category = "Funny / நகைச்சுவை";
         else if (id == R.id.nav_relationship)
             category = "Relationship / காதல்";
         else if (id == R.id.nav_college)
@@ -393,7 +399,7 @@ public class MainActivity extends AppCompatActivity
         Bundle params = new Bundle();
         params.putString("activity", "MainActivity-Drawer");
         params.putString("category_clicked", category);
-        mFirebaseAnalytics.logEvent("category", params);
+        mFirebaseAnalytics.logEvent("category_"+category, params);
 
         if(getFragmentRefreshListener_1()!=null){
             getFragmentRefreshListener_1().onRefresh_fone(category);
@@ -526,14 +532,21 @@ public class MainActivity extends AppCompatActivity
 
 
         public void  open_drawer(String cat){
-
-
         DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
             drawerLayout.openDrawer(Gravity.LEFT,true);
-
-
-
-
         }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case 104: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    File file = new File(Environment.getExternalStorageDirectory() + "/Tamil GAG/");
+                    file.mkdirs();
+                }
+                return;
+            }
+        }
+    }
 
 }

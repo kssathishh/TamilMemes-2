@@ -66,6 +66,7 @@ public class FragmentFresh extends Fragment {
     final ArrayList<String> all_timestamp = new ArrayList<>();
     final ArrayList<Integer> all_upvotes = new ArrayList<>();
     final ArrayList<Integer> all_downvotes = new ArrayList<>();
+    ArrayList <QueryDocumentSnapshot> all_document = new ArrayList<>();
 
     DocumentSnapshot lastVisible;
     GridViewAdapter gridViewAdapter;
@@ -75,6 +76,7 @@ public class FragmentFresh extends Fragment {
 
     Button btn_new_post;
     private FirebaseAnalytics mFirebaseAnalytics;
+    boolean first_time = true;
 
 
     @Override
@@ -117,7 +119,7 @@ public class FragmentFresh extends Fragment {
             public void onScroll(AbsListView view, int firstVisibleItem,
                                  int visibleItemCount, int totalItemCount) {
 
-                if(firstVisibleItem+visibleItemCount == totalItemCount && totalItemCount!=0)
+                if(firstVisibleItem+visibleItemCount == (totalItemCount-2) && totalItemCount!=0)
                 {
                     if(flag_loading == false && end == false)
                     {
@@ -126,7 +128,7 @@ public class FragmentFresh extends Fragment {
                         Bundle params = new Bundle();
                         params.putString("activity", "FragmentFresh");
                         params.putString("event_name", "Add 10 more itmes");
-                        mFirebaseAnalytics.logEvent("events_Fragment_Fresh", params);
+                        mFirebaseAnalytics.logEvent("Fragment_Fresh_10_more", params);
                     }
                 }
             }
@@ -139,7 +141,7 @@ public class FragmentFresh extends Fragment {
                 Bundle params = new Bundle();
                 params.putString("activity", "FragmentFresh");
                 params.putString("event_name", "Pull To Refresh");
-                mFirebaseAnalytics.logEvent("events_Fragment_Fresh", params);
+                mFirebaseAnalytics.logEvent("Fragment_Fresh_pull2refresh", params);
 
                 setAdapter(category_public);
                 //gridViewAdapter.notifyDataSetChanged();
@@ -156,7 +158,7 @@ public class FragmentFresh extends Fragment {
                 Bundle params = new Bundle();
                 params.putString("activity", "FragmentFresh");
                 params.putString("event_name", "New Post Button");
-                mFirebaseAnalytics.logEvent("events_Fragment_Fresh", params);
+                mFirebaseAnalytics.logEvent("Fragment_Fresh_new_post_btn", params);
 
                 setAdapter(category_public);
 
@@ -193,7 +195,11 @@ public class FragmentFresh extends Fragment {
                         for (DocumentChange dc : snapshots.getDocumentChanges()) {
                             switch (dc.getType()) {
                                 case ADDED:
-                                    btn_new_post.setVisibility(View.VISIBLE);
+                                     if(first_time)
+                                         first_time = false;
+                                     else
+                                         btn_new_post.setVisibility(View.VISIBLE);
+
                                      break;
                                 case MODIFIED:
                                      break;
@@ -257,6 +263,8 @@ try {
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             Log.d("TAG1", document.get("link").toString());
 
+                            all_document.add(document);
+
                             allDrawableImages.add(document.get("link").toString());
                             allDocumentReference.add(document.getReference().getPath());
 
@@ -319,7 +327,7 @@ try {
             allDocumentReference.clear();
             allDrawableImages.clear();
             allDesc.clear();
-
+all_document.clear();
             all_category.clear();
             all_timestamp.clear();
             all_upvotes.clear();
@@ -337,11 +345,14 @@ try {
         @Override
         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
             if (task.isSuccessful()) {
-                DocumentSnapshot document = task.getResult();
+               DocumentSnapshot document = task.getResult();
+
+
                 Log.d("tagg8", "DocumentSnapshot data: " + document.getData());
 
                 if (document.exists()) {
 
+                    all_document.add((QueryDocumentSnapshot) document);
 
                     allDrawableImages.add(document.get("link").toString());
                     allDocumentReference.add(document.getReference().getPath());
@@ -364,7 +375,7 @@ try {
     });
 }
 
-                gridViewAdapter = new GridViewAdapter(MainActivity.getInstance(), allDrawableImages, allDesc, all_category, all_timestamp, all_upvotes, all_downvotes, allDocumentReference);
+                gridViewAdapter = new GridViewAdapter(MainActivity.getInstance(), allDrawableImages, allDesc, all_category, all_timestamp, all_upvotes, all_downvotes, allDocumentReference,all_document);
                 Log.w("tagg8", gridViewAdapter.getCount()+" adapter - count");
 
                 gridView.setAdapter(gridViewAdapter);
@@ -384,7 +395,8 @@ else {
 
                 if (category.contains("Home")) {
                     query = collRef.orderBy("time", Query.Direction.DESCENDING);
-                } else {
+                }
+                else {
                     query = collRef.whereArrayContains("category", category)
                             .orderBy("time", Query.Direction.DESCENDING);
 
@@ -412,6 +424,8 @@ else {
                                 if (task.isSuccessful()) {
                                     for (QueryDocumentSnapshot document : task.getResult()) {
 
+                                        all_document.add(document);
+
                                         allDrawableImages.add(document.get("link").toString());
                                         allDocumentReference.add(document.getReference().getPath());
                                         if (document.get("description") == null)
@@ -425,7 +439,7 @@ else {
                                         all_downvotes.add(Integer.parseInt(document.get("downvote") + ""));
 
                                     }
-                                    gridViewAdapter = new GridViewAdapter(MainActivity.getInstance(), allDrawableImages, allDesc, all_category, all_timestamp, all_upvotes, all_downvotes, allDocumentReference);
+                                    gridViewAdapter = new GridViewAdapter(MainActivity.getInstance(), allDrawableImages, allDesc, all_category, all_timestamp, all_upvotes, all_downvotes, allDocumentReference,all_document);
                                     Log.w("tag22-f2", allDrawableImages.size() + "");
 
                                     gridView.setAdapter(gridViewAdapter);

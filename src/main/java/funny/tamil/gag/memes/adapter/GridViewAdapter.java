@@ -4,6 +4,9 @@ package funny.tamil.gag.memes.adapter;
 import android.app.AlertDialog;
 import android.app.ApplicationErrorReport;
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -12,6 +15,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.media.MediaMetadataRetriever;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -22,14 +26,19 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.os.StrictMode;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -41,14 +50,19 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.common.reflect.TypeToken;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.gson.Gson;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -77,6 +91,7 @@ public class GridViewAdapter extends BaseAdapter {
     public ArrayList<Integer> all_upvotes;
     public ArrayList<Integer> all_downvotes;
     public ArrayList<String> all_Document_Reference;
+    public ArrayList<QueryDocumentSnapshot> all_document;
 
     public ArrayList<String> list_like;
     public ArrayList<String> list_dislike;
@@ -97,7 +112,7 @@ public class GridViewAdapter extends BaseAdapter {
     private FirebaseAnalytics mFirebaseAnalytics;
 
 
-    public GridViewAdapter(Context context, ArrayList<String> images, ArrayList<String> desc, ArrayList<String> category, ArrayList<String> timestamp, ArrayList<Integer> upvotes, ArrayList<Integer> downvotes, ArrayList<String> document_Reference) {
+    public GridViewAdapter(Context context, ArrayList<String> images, ArrayList<String> desc, ArrayList<String> category, ArrayList<String> timestamp, ArrayList<Integer> upvotes, ArrayList<Integer> downvotes, ArrayList<String> document_Reference, ArrayList<QueryDocumentSnapshot> documents) {
         inflater = LayoutInflater.from(context);
         this.context = context;
 //
@@ -108,6 +123,7 @@ public class GridViewAdapter extends BaseAdapter {
         all_upvotes = upvotes;
         all_downvotes = downvotes;
         all_Document_Reference = document_Reference;
+        all_document = documents;
 
         list_like = getArrayList(LIKE);
         if (list_like == null) {
@@ -179,7 +195,7 @@ public class GridViewAdapter extends BaseAdapter {
         }
 
         if (!(allItemsUrl.size() <= position)) {
-            Log.w("tag2", allItemsUrl.get(position));
+          //  Log.w("tag2", allItemsUrl.get(position));
 
 
            Glide.with(context)
@@ -206,7 +222,7 @@ public class GridViewAdapter extends BaseAdapter {
                     Bundle params = new Bundle();
                     params.putString("activity", "Gridviewadapter-click");
                     params.putString("button_name", "category_text");
-                    mFirebaseAnalytics.logEvent("buttons_clicked", params);
+                    mFirebaseAnalytics.logEvent("category_text_click", params);
 
                     String tv_string = holder.text_category.getText().toString();
 
@@ -234,21 +250,27 @@ public class GridViewAdapter extends BaseAdapter {
                     Bundle params = new Bundle();
                     params.putString("activity", "Gridviewadapter-click");
                     params.putString("button_name", "image_click");
-                    mFirebaseAnalytics.logEvent("buttons_clicked", params);
+                    mFirebaseAnalytics.logEvent("image_click", params);
 
-                    new open_swipeActivity(holder).execute(0);
+
+
+                    new open_swipeActivity(holder).execute(position);
+
+
+                    Log.i("tag12-iv-imgurl",allItemsUrl.get(position));
+                    Log.i("tag12-iv-video",all_document.get(position).get("video_link").toString());
+                    Log.i("tag12-iv-type", all_document.get(position).get("type").toString());
+
 
                 }
             });
 
 
 
-            if (allDesc.get(position).isEmpty())
 
-                holder.text_desc.setVisibility(View.GONE);
+            holder.text_desc.setText(allDesc.get(position));
 
-                else
-                holder.text_desc.setText(allDesc.get(position));
+
 
 
 
@@ -327,7 +349,7 @@ public class GridViewAdapter extends BaseAdapter {
                     Bundle params = new Bundle();
                     params.putString("activity", "Gridviewadapter-click");
                     params.putString("button_name", "upvote");
-                    mFirebaseAnalytics.logEvent("buttons_clicked", params);
+                    mFirebaseAnalytics.logEvent("upvote_clicked", params);
 
                     Log.i("tagg5 - before", position + "-" + all_upvotes);
                     if (holder.btn_upvote.isChecked()) {
@@ -368,7 +390,7 @@ public class GridViewAdapter extends BaseAdapter {
                     Bundle params = new Bundle();
                     params.putString("activity", "Gridviewadapter-click");
                     params.putString("button_name", "downvote");
-                    mFirebaseAnalytics.logEvent("buttons_clicked", params);
+                    mFirebaseAnalytics.logEvent("downvote_clicked", params);
 
                     Log.i("tagg5 - before", position + "-" + all_downvotes);
 
@@ -415,11 +437,19 @@ public class GridViewAdapter extends BaseAdapter {
                     Bundle params = new Bundle();
                     params.putString("activity", "Gridviewadapter-click");
                     params.putString("button_name", "save");
-                    mFirebaseAnalytics.logEvent("buttons_clicked", params);
+                    mFirebaseAnalytics.logEvent("save_clicked", params);
 
                     Thread t = new Thread(new Runnable() {
                         public void run() {
-                            save(holder);
+                            String fileName = Environment.getExternalStorageDirectory().toString() + "/Tamil GAG/";
+                            new File(fileName).mkdirs();
+
+                            if(all_document.get(position).get("type").toString().contains("image"))
+                               save(holder);
+                            else if(all_document.get(position).get("type").toString().contains("video"))
+                                new Share_Video_Async(holder.btn_share,"save").execute(all_document.get(position).get("video_link").toString(), Environment.getExternalStorageDirectory()+"/Tamil GAG/" + "video_"+ System.currentTimeMillis()+".mp4");
+
+
                         }
                     });
 
@@ -438,12 +468,19 @@ public class GridViewAdapter extends BaseAdapter {
                     Bundle params = new Bundle();
                     params.putString("activity", "Gridviewadapter-click");
                     params.putString("button_name", "share");
-                    mFirebaseAnalytics.logEvent("buttons_clicked", params);
+                    mFirebaseAnalytics.logEvent("share_clicked", params);
+
                     Thread t = new Thread(new Runnable() {
                         public void run() {
 
+                            if(all_document.get(position).get("type").toString().contains("image"))
+                                share(holder);
 
-                            share(holder);
+                            else if(all_document.get(position).get("type").toString().contains("video"))
+                                new Share_Video_Async(holder.btn_share,"share").execute(all_document.get(position).get("video_link").toString(),context.getExternalCacheDir() + "video_cache.mp4");
+
+
+
                         }
                     });
 
@@ -469,6 +506,108 @@ public class GridViewAdapter extends BaseAdapter {
         return view;
 
     }
+    class Share_Video_Async extends AsyncTask<String,Integer,String> {
+        Snackbar snackbar;
+        private View rootView;
+        String save_or_share;
+        ProgressBar item = new ProgressBar(context,null,android.R.attr.progressBarStyleSmallTitle);
+
+
+        public Share_Video_Async(View rootView,String save_or_share) {
+
+            this.rootView =rootView;
+            this.save_or_share = save_or_share;
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+
+            File file_video = new File(strings[1]);
+            String snackbar_title = "Preparing to Share Video...";
+
+            if(save_or_share.contains("save"))
+                snackbar_title = "Downloading Video...";
+            if(save_or_share.contains("share"))
+                snackbar_title = "Preparing to Share Video...";
+
+
+                snackbar = Snackbar.make(rootView, snackbar_title, Snackbar.LENGTH_INDEFINITE);
+            ViewGroup contentLay = (ViewGroup) snackbar.getView().findViewById(com.google.android.material.R.id.snackbar_text).getParent();
+            item.setIndeterminate(true);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            params.gravity = Gravity.CENTER;
+            item.setLayoutParams(params);
+
+            contentLay.addView(item);
+
+            snackbar.show();
+            return downloadFile(strings[0],file_video);
+        }
+
+
+
+        @Override
+        protected void onPostExecute(String s) {
+            Log.d("tag14", "share video"+s);
+            snackbar.dismiss();
+
+            if(save_or_share.contains("share"))
+                shareVideo("Share Video...",s);
+            else if (save_or_share.contains("save"))
+                { Snackbar snackbar = Snackbar.make(rootView, "Video Saved at "+s,Snackbar.LENGTH_SHORT);
+                    snackbar.setAction("OPEN", new MyOpenListener(s,"video/*"));
+                 snackbar.show();}
+
+            super.onPostExecute(s);
+        }
+    }
+    public void shareVideo(final String title, String path) {
+
+        MediaScannerConnection.scanFile(context, new String[] { path },
+
+                null, new MediaScannerConnection.OnScanCompletedListener() {
+                    public void onScanCompleted(String path, Uri uri) {
+                        Intent shareIntent = new Intent(
+                                android.content.Intent.ACTION_SEND);
+                        shareIntent.setType("video/*");
+                        shareIntent.putExtra(
+                                android.content.Intent.EXTRA_SUBJECT, title);
+                        shareIntent.putExtra(
+                                android.content.Intent.EXTRA_TITLE, title);
+                        shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
+                        shareIntent
+                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+                        context.startActivity(Intent.createChooser(shareIntent, "Share Video..."));
+
+                    }
+                });
+    }
+
+    private static String downloadFile(String url, File outputFile) {
+        try {
+            URL u = new URL(url);
+            URLConnection conn = u.openConnection();
+            int contentLength = conn.getContentLength();
+
+            DataInputStream stream = new DataInputStream(u.openStream());
+
+            byte[] buffer = new byte[contentLength];
+            stream.readFully(buffer);
+            stream.close();
+
+            DataOutputStream fos = new DataOutputStream(new FileOutputStream(outputFile));
+            fos.write(buffer);
+            fos.flush();
+            fos.close();
+
+            return outputFile.getPath();
+        } catch(FileNotFoundException e) {
+            return null; // swallow a 404
+        } catch (IOException e) {
+            return null; // swallow a 404
+        }
+    }
+
 
     private void share(ViewHolder holder) {
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
@@ -517,7 +656,9 @@ public class GridViewAdapter extends BaseAdapter {
 
 
 
-            Snackbar snackbar = Snackbar.make(holder.imageView, "Image Saved at "+fileName,Snackbar.LENGTH_SHORT);
+            Snackbar snackbar = Snackbar.make(holder.imageView, "Image Saved at "+fileName,Snackbar.LENGTH_LONG);
+            snackbar.setAction("OPEN", new MyOpenListener(fileName,"image/*"));
+
             snackbar.show();
 
 
@@ -529,7 +670,30 @@ public class GridViewAdapter extends BaseAdapter {
         }
 
     }
+    public class MyOpenListener implements View.OnClickListener {
+        String filename,mimetype;
 
+        MyOpenListener(String filename,String mimetype)
+        {
+            this.filename = filename;
+            this.mimetype = mimetype;
+        }
+
+
+        @Override
+        public void onClick(View v) {
+
+            Intent newIntent = new Intent(Intent.ACTION_VIEW);
+            newIntent.setDataAndType(Uri.fromFile(new File(filename)),mimetype);
+            newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            try {
+                context.startActivity(newIntent);
+            } catch (ActivityNotFoundException e) {
+                Toast.makeText(context, "No handler for this type of file.", Toast.LENGTH_LONG).show();
+            }
+
+        }
+    }
     private void addLike(String documentReference, int i,int count) {
 
         if (i == 1) {
@@ -808,6 +972,14 @@ try {
 
                             }
 
+                           else if(task.contains("link")) {
+
+                                ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                                ClipData clip = ClipData.newPlainText("link", img_url);
+                                clipboard.setPrimaryClip(clip);
+
+
+                            }
 
 
                         }
@@ -866,7 +1038,8 @@ try {
 
         if (category.toLowerCase().contains("funny"))
              return  R.drawable.funny;
-
+        else if (category.toLowerCase().contains("Trending"))
+            return  R.drawable.baseline_whatshot_black_18;
         else if (category.toLowerCase().contains("relationship"))
             return  R.drawable.baseline_favorite_black_24;
         else if (category.toLowerCase().contains("sad"))
@@ -972,10 +1145,7 @@ try {
 
         final ProgressDialog  progressDialog = new ProgressDialog(context);
 
-
-
-
-        open_swipeActivity(ViewHolder holder){
+   open_swipeActivity(ViewHolder holder){
             this.holder = holder;
 
         }
@@ -995,7 +1165,8 @@ try {
 
         @Override
         protected Integer doInBackground(Integer... ints) {
-
+/*
+            if(all_document.get(ints[0]).get("type").toString().contains("image"))
 try {
     holder.imageView.buildDrawingCache();
     Bitmap bitmap = holder.imageView.getDrawingCache();
@@ -1004,7 +1175,10 @@ try {
     bitmap.compress(Bitmap.CompressFormat.PNG, 100, bStream);
     byte[] byteArray = bStream.toByteArray();
 
-        File file = new File(Environment.getExternalStorageDirectory() + "/Tamil GAG/", "swipeactivity.jpg");
+    File file = new File(Environment.getExternalStorageDirectory() + "/Tamil GAG/", "swipeactivity.jpg");
+
+    file.mkdirs();
+
     if(file.exists())
         file.delete();
 
@@ -1017,7 +1191,7 @@ try {
         e.printStackTrace();
     }
 
-
+*/
 
             return ints[0];
         }
@@ -1027,11 +1201,16 @@ try {
             if(progressDialog.isShowing())
                  progressDialog.dismiss();
 
+            Log.i("tag12-grid-imgurl",allItemsUrl.get(position));
+            Log.i("tag12-grid-video",all_document.get(position).get("video_link").toString());
+            Log.i("tag12-grid-type", all_document.get(position).get("type").toString());
 
             Intent intent = new Intent(context, SwipeActivity.class);
             intent.putExtra("URLList", allItemsUrl);
+            intent.putExtra("video_link", all_document.get(position).get("video_link").toString());
+            intent.putExtra("video_or_image", all_document.get(position).get("type").toString());
             intent.putExtra("position", position);
-
+            Log.i("taggg6",all_document.get(position).get("video_link").toString());
             context.startActivity(intent);
 
 

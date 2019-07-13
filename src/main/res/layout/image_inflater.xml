@@ -73,7 +73,8 @@
                     android:layout_marginEnd="5dp"
                     android:maxLines="1"
                     android:text="10 m"
-                    android:textAlignment="viewEnd" />
+                    android:textAlignment="viewEnd"
+                    />
 
                 <ImageButton
                     android:id="@+id/imageButton_popup_menu"
@@ -96,6 +97,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:layout_marginEnd="10dp"
+                android:layout_marginBottom="10dp"
                 android:maxLines="2"
                 android:textSize="16sp"
                 android:textStyle="bold"
@@ -147,7 +149,6 @@
                 android:orientation="horizontal">
 
 
-
                 <ToggleButton
                     android:id="@+id/btn_like"
                     android:layout_width="wrap_content"
@@ -160,8 +161,8 @@
                     android:maxLines="1"
                     android:padding="10dp"
                     android:text="1.1 k"
-                    android:textOn="1.1 k"
-                    android:textOff="1.1 k" />
+                    android:textOff="1.1 k"
+                    android:textOn="1.1 k" />
 
                 <ToggleButton
                     android:id="@+id/btn_dislike"
@@ -175,8 +176,8 @@
                     android:maxLines="1"
                     android:padding="10dp"
                     android:text="83"
-                    android:textOn="83"
-                    android:textOff="83"/>
+                    android:textOff="83"
+                    android:textOn="83" />
 
                 <Button
                     android:id="@+id/btn_share"

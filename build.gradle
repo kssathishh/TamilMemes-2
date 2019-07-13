@@ -7,8 +7,8 @@ android {
         applicationId "funny.tamil.gag.memes"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 6
-        versionName "1.6"
+        versionCode 8
+        versionName "1.8"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -55,7 +55,7 @@ dependencies {
     implementation 'com.zhihu.android:matisse:0.5.2-beta4'
     //implementation 'com.writingminds:FFmpegAndroid:0.3.2'
 
-
+    implementation 'com.github.tingyik90:snackprogressbar:6.1'
 
 
 }

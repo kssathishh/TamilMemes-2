@@ -38,6 +38,8 @@ public class RecyclerSnapAdapter extends RecyclerView.Adapter<RecyclerSnapAdapte
         mcontext = context;
         UploadActivity ua  = new UploadActivity();
         ua.download_url_list.clear();
+        ua.download_video_url_list.clear();
+
         Log.i("Logg4-contructor",apps.get(0));
 
 

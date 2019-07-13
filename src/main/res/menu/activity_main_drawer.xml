@@ -20,6 +20,12 @@
             <menu>
                 <group android:checkableBehavior="single">
 
+                    <item
+                        android:id="@+id/nav_trending"
+                        android:icon="@drawable/ic_whatshot"
+                        android:title="Trending"
+
+                        />
                      <item
                          android:id="@+id/nav_tamil_funny"
                          android:icon="@drawable/funny"
@@ -32,6 +38,11 @@
                         android:title="Relationship / காதல்" />
 
                     <item
+                        android:id="@+id/nav_actress"
+                        android:icon="@drawable/actress"
+                        android:title="Actress / நடிகை" />
+
+                    <item
                         android:id="@+id/nav_college"
                         android:icon="@drawable/baseline_local_library_black_24"
                         android:title="College" />
@@ -41,8 +52,6 @@
                         android:id="@+id/nav_sad"
                         android:icon="@drawable/baseline_sentiment_very_dissatisfied_black_24"
                         android:title="Sad / சோகம்" />
-
-
 
                     <item
                         android:id="@+id/nav_corporate"
@@ -65,10 +74,7 @@
                     android:icon="@drawable/actor"
                     android:title="Actors / நடிகர்கள்" />
 
-                    <item
-                        android:id="@+id/nav_actress"
-                        android:icon="@drawable/actress"
-                        android:title="Actress / நடிகை" />
+
 
                     <item
                         android:id="@+id/nav_pubg"

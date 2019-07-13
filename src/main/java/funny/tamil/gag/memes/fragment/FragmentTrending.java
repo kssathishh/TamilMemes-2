@@ -54,6 +54,7 @@ public class FragmentTrending extends Fragment {
     final ArrayList<String> all_timestamp = new ArrayList<>();
     final ArrayList<Integer> all_upvotes = new ArrayList<>();
     final ArrayList<Integer> all_downvotes = new ArrayList<>();
+    final ArrayList<QueryDocumentSnapshot> all_document = new ArrayList<>();
 
 
 
@@ -99,7 +100,7 @@ public class FragmentTrending extends Fragment {
             public void onScroll(AbsListView view, int firstVisibleItem,
                                  int visibleItemCount, int totalItemCount) {
 
-                if(firstVisibleItem+visibleItemCount == totalItemCount && totalItemCount!=0)
+                if(firstVisibleItem+visibleItemCount == (totalItemCount-2) && totalItemCount!=0)
                 {
                     if(flag_loading == false && end == false)
                     {
@@ -109,7 +110,7 @@ public class FragmentTrending extends Fragment {
                         Bundle params = new Bundle();
                         params.putString("activity", "FragmentTrending");
                         params.putString("event_name", "Add 10 more itmes");
-                        mFirebaseAnalytics.logEvent("events_Fragment_Trending", params);
+                        mFirebaseAnalytics.logEvent("Fragment_Trending_10_more", params);
 
                     }
                 }
@@ -123,7 +124,7 @@ public class FragmentTrending extends Fragment {
                 Bundle params = new Bundle();
                 params.putString("activity", "FragmentTrending");
                 params.putString("event_name", "Pull To Refresh");
-                mFirebaseAnalytics.logEvent("events_Fragment_Trending", params);
+                mFirebaseAnalytics.logEvent("Fragment_Trending_pull2refresh", params);
 
                 setAdapter(category_public);
                 //gridViewAdapter.notifyDataSetChanged();
@@ -146,16 +147,29 @@ try{
         CollectionReference collRef = db.collection("collection1");
 
         Query query;
+    java.sql.Timestamp stamp = new java.sql.Timestamp(System.currentTimeMillis() - (3600 * 1000 * 24));
+    Date date = new Date(stamp.getTime());
 
-        if(category.contains("Home"))
-        {
-            query =   collRef .orderBy("upvote", Query.Direction.DESCENDING);
-        }
-        else {
-            query = collRef.whereArrayContains("category", category)
-                    .orderBy("upvote", Query.Direction.DESCENDING);
+    if (category.contains("Home")) {
 
-        }
+        query = collRef
+                .orderBy("time", Query.Direction.ASCENDING)
+                .orderBy("upvote", Query.Direction.DESCENDING)
+                .orderBy("downvote", Query.Direction.ASCENDING)
+                .whereGreaterThan("time", date);
+
+
+        //.endBefore("time",date);
+
+
+    } else {
+        query = collRef.whereArrayContains("category", category)
+                .orderBy("time", Query.Direction.ASCENDING)
+                .orderBy("upvote", Query.Direction.DESCENDING)
+                .orderBy("downvote", Query.Direction.ASCENDING)
+                .whereGreaterThan("time", date);
+
+    }
 
         query
                 .startAfter(lastVisible)
@@ -182,6 +196,7 @@ try{
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 Log.d("TAG1", document.get("link").toString());
+                                all_document.add(document);
 
                                 allDrawableImages.add(document.get("link").toString());
                                 allDocumentReference.add(document.getReference().getPath());
@@ -237,7 +252,7 @@ try{
             allDocumentReference.clear();
             allDrawableImages.clear();
             allDesc.clear();
-
+all_document.clear();
             all_category.clear();
             all_timestamp.clear();
             all_upvotes.clear();
@@ -260,6 +275,7 @@ try{
 
                                 if (document.exists()) {
 
+                                    all_document.add((QueryDocumentSnapshot) document);
 
                                     allDrawableImages.add(document.get("link").toString());
                                     allDocumentReference.add(document.getReference().getPath());
@@ -282,7 +298,7 @@ try{
                     });
                 }
 
-                gridViewAdapter = new GridViewAdapter(MainActivity.getInstance(), allDrawableImages, allDesc, all_category, all_timestamp, all_upvotes, all_downvotes, allDocumentReference);
+                gridViewAdapter = new GridViewAdapter(MainActivity.getInstance(), allDrawableImages, allDesc, all_category, all_timestamp, all_upvotes, all_downvotes, allDocumentReference,all_document);
                 Log.w("tagg8", gridViewAdapter.getCount()+" adapter - count");
 
                 gridView.setAdapter(gridViewAdapter);
@@ -301,7 +317,7 @@ try{
 
                 Query query;
 
-                java.sql.Timestamp stamp = new java.sql.Timestamp(System.currentTimeMillis() - (3600 * 1000 * 48));
+                java.sql.Timestamp stamp = new java.sql.Timestamp(System.currentTimeMillis() - (3600 * 1000 * 24));
                 Date date = new Date(stamp.getTime());
 
 
@@ -351,6 +367,7 @@ try{
                                     for (QueryDocumentSnapshot document : task.getResult()) {
 
                                         Log.d("TAG1", document.getReference().getPath());
+                                        all_document.add(document);
 
                                         allDocumentReference.add(document.getReference().getPath());
                                         allDrawableImages.add(document.get("link").toString());
@@ -368,7 +385,7 @@ try{
 
                                     Log.w("tag22-f1", allDrawableImages.size() + "");
 
-                                    gridViewAdapter = new GridViewAdapter(MainActivity.getInstance(), allDrawableImages, allDesc, all_category, all_timestamp, all_upvotes, all_downvotes, allDocumentReference);
+                                    gridViewAdapter = new GridViewAdapter(MainActivity.getInstance(), allDrawableImages, allDesc, all_category, all_timestamp, all_upvotes, all_downvotes, allDocumentReference,all_document);
                                     Log.w("tag2", allDrawableImages.size() + "");
 
                                     gridView.setAdapter(gridViewAdapter);

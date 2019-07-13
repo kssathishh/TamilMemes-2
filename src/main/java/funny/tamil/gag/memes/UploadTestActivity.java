@@ -105,15 +105,7 @@ public class UploadTestActivity extends AppCompatActivity {
 
             Uri  uri_video = mSelected.get(0);
 
-            /*String selectedImagePath =getPath(uri_video);
-            if (selectedImagePath != null) {
-                String[] cmd = {"-i"
-                        , selectedImagePath
-                        ,"fps=12,scale=w=480:h=-1"
-                        , Environment.getExternalStorageDirectory()+"/Download/gif.gif"};
-                conversion(cmd);
 
-            }*/
             BitmapFactory.Options options=new BitmapFactory.Options();
 
             options.inSampleSize = 1;
