@@ -1,65 +1,69 @@
 <resources>
-    <string name="app_name">Tamil GAG</string>
+    <string name="app_name">Tha - Tamil Memes</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_desc">Navigation header</string>
 
     <string name="admob_app_id">ca-app-pub-3132906276862427~2192785086</string>
     <string name="admob_banner_id">ca-app-pub-3132906276862427/3756561462</string>
-    <string name="admob_inter_id">ca-app-pub-3132906276862427/1939657738</string>
 
-    <string-array name="categories">
-        <item>Funny / நகைச்சுவை</item>
-        <item>Relationship / காதல்</item>
-        <item>College</item>
-        <item>Sad / சோகம்</item>
-        <item>Corporate / கார்பொரேட்</item>
-        <item>Politics / அரசியல்</item>
-        <item>Cinema / சினிமா</item>
-        <item>Sports / விளையாட்டு</item>
-        <item>Actors / நடிகர்கள்</item>
-        <item>Actress / நடிகை</item>
-        <item>Games</item>
-        <item>Mokkai / மொக்கை</item>
-        <item>Others / மற்றவை</item>
-        <item>Funny</item>
-        <item>Hollywood / ஹாலிவுட்</item>
-        <item>Savage</item>
-        <item>Dark Humor</item>
-        <item>WTF</item>
-        <item>GIF</item>
-        <item>Others</item>
-        <item>Trending Templates</item>
-        <item>Vadivelu / வடிவேலு</item>
-        <item>Santhanam / சந்தானம்</item>
-        <item>Goundamani-Senthil/கவுண்டமணி</item>
-        <item>Vivek / விவேக்</item>
-        <item>Actors - Templates</item>
-        <item>Actress - Templates</item>
-        <item>Movie - Templates</item>
-        <item>Sports / விளையாட்டு - T</item>
-        <item>Politics / அரசியல் - T</item>
-        <item>YouTube Templates</item>
-        <item>Other Templates</item>
+    <!-- <string name="admob_banner_id"> ca-app-pub-3940256099942544/6300978111</string>-->
 
 
-    </string-array>
-    <string name="error_gif">x or y ha de ser almenys %1$dpx i el tamany de l\'arxiu no ha de ser major que %2$sM</string>
+     <string name="admob_inter_id">ca-app-pub-3132906276862427/1939657738</string>
 
-    <string name="title_activity_upload">Upload Memes</string>
+     <string-array name="categories">
+         <item>Funny / நகைச்சுவை</item>
+         <item>Relationship / காதல்</item>
+         <item>College</item>
+         <item>Sad / சோகம்</item>
+         <item>Corporate / கார்பொரேட்</item>
+         <item>Politics / அரசியல்</item>
+         <item>Cinema / சினிமா</item>
+         <item>Sports / விளையாட்டு</item>
+         <item>Actors / நடிகர்கள்</item>
+         <item>Actress / நடிகை</item>
+         <item>Games</item>
+         <item>Mokkai / மொக்கை</item>
+         <item>Others / மற்றவை</item>
+         <item>Funny</item>
+         <item>Hollywood / ஹாலிவுட்</item>
+         <item>Savage</item>
+         <item>Dark Humor</item>
+         <item>WTF</item>
+         <item>GIF</item>
+         <item>Others</item>
+         <item>Trending Templates</item>
+         <item>Vadivelu / வடிவேலு</item>
+         <item>Santhanam / சந்தானம்</item>
+         <item>Goundamani-Senthil/கவுண்டமணி</item>
+         <item>Vivek / விவேக்</item>
+         <item>Actors - Templates</item>
+         <item>Actress - Templates</item>
+         <item>Movie - Templates</item>
+         <item>Sports / விளையாட்டு - T</item>
+         <item>Politics / அரசியல் - T</item>
+         <item>YouTube Templates</item>
+         <item>Other Templates</item>
 
 
-    <string name="select_category">
- <![CDATA[
-  Select Category<b><font color=#ff0000>*</b>
-]]>
-  </string>
+     </string-array>
+     <string name="error_gif">x or y ha de ser almenys %1$dpx i el tamany de l\'arxiu no ha de ser major que %2$sM</string>
 
-    <string name="select_images">
- <![CDATA[
-  Select Images<b><font color=#ff0000>*</b>
-]]>
-  </string>
+     <string name="title_activity_upload">Upload Memes</string>
 
-</resources>
+
+     <string name="select_category">
+  <![CDATA[
+   Select Category<b><font color=#ff0000>*</b>
+ ]]>
+   </string>
+
+     <string name="select_images">
+  <![CDATA[
+   Select Images<b><font color=#ff0000>*</b>
+ ]]>
+   </string>
+
+ </resources>
 

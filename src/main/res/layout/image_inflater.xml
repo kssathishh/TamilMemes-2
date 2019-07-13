@@ -10,13 +10,15 @@
     android:orientation="vertical"
     android:padding="10dp">
 
-    <!-- A CardView that contains a TextView -->
-
+     <RelativeLayout android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
     <androidx.cardview.widget.CardView
+        android:id="@+id/cardview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
 
+        android:layout_gravity="center"
         android:alwaysDrawnWithCache="true"
         android:animateLayoutChanges="true"
         android:animationCache="true"
@@ -73,8 +75,7 @@
                     android:layout_marginEnd="5dp"
                     android:maxLines="1"
                     android:text="10 m"
-                    android:textAlignment="viewEnd"
-                    />
+                    android:textAlignment="viewEnd" />
 
                 <ImageButton
                     android:id="@+id/imageButton_popup_menu"
@@ -208,5 +209,18 @@
 
 
         </LinearLayout>
+
     </androidx.cardview.widget.CardView>
+
+         <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
+             android:id="@+id/adView_native"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+
+             android:layout_centerInParent="true"
+             ads:adSize="MEDIUM_RECTANGLE"
+             ads:adUnitId="@string/admob_banner_id"
+             android:visibility="gone"
+             />
+     </RelativeLayout>
 </LinearLayout>

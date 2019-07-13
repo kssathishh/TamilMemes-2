@@ -40,7 +40,7 @@
             android:layout_centerInParent="false"
             android:layout_centerHorizontal="true"
             android:layout_gravity="center_horizontal"
-            ads:adSize="BANNER"
+            ads:adSize="SMART_BANNER"
             ads:adUnitId="@string/admob_banner_id" />
 
 </RelativeLayout>

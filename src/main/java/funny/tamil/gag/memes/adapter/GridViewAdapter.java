@@ -22,6 +22,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.os.StrictMode;
@@ -45,6 +46,8 @@ import android.widget.ToggleButton;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
@@ -112,6 +115,7 @@ public class GridViewAdapter extends BaseAdapter {
     private FirebaseAnalytics mFirebaseAnalytics;
 
 
+
     public GridViewAdapter(Context context, ArrayList<String> images, ArrayList<String> desc, ArrayList<String> category, ArrayList<String> timestamp, ArrayList<Integer> upvotes, ArrayList<Integer> downvotes, ArrayList<String> document_Reference, ArrayList<QueryDocumentSnapshot> documents) {
         inflater = LayoutInflater.from(context);
         this.context = context;
@@ -168,9 +172,17 @@ public class GridViewAdapter extends BaseAdapter {
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
-        final ViewHolder holder;
+        final ViewHolder holder ;
+
         View view = convertView;
 
+
+
+           Log.i("tag13","position - img -  "+position);
+
+         view = convertView;
+
+        Log.w("tag13", position + " NULL");
 
 
         if (view == null) {
@@ -187,325 +199,327 @@ public class GridViewAdapter extends BaseAdapter {
             holder.btn_share = view.findViewById(R.id.btn_share);
             holder.btn_save = view.findViewById(R.id.btn_download);
             holder.ib_popup_menu = view.findViewById(R.id.imageButton_popup_menu);
-
-
+            holder.cardView = view.findViewById(R.id.cardview);
+            holder.ad_native = view.findViewById(R.id.adView_native);
             view.setTag(holder);
         } else {
             holder = (ViewHolder) view.getTag();
         }
 
+
         if (!(allItemsUrl.size() <= position)) {
-          //  Log.w("tag2", allItemsUrl.get(position));
+            if (allItemsUrl.get(position) !=null) {
+                Log.w("tag13", position + "Not NULL");
 
 
-           Glide.with(context)
-                     .load(allItemsUrl.get(position))
+                holder.cardView.setVisibility(View.VISIBLE);
+                holder.ad_native.setVisibility(View.GONE);
+
+                Glide.with(context)
+                        .load(allItemsUrl.get(position))
                         .dontAnimate()
-                     .placeholder(R.drawable.transparentbg)
-                     .error(R.drawable.reloadtransparent)
-                     .diskCacheStrategy(DiskCacheStrategy.ALL)
-                     .thumbnail(0.2f)
-                     .into(holder.imageView);
+                        .placeholder(R.drawable.transparentbg)
+                        .error(R.drawable.reloadtransparent)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .thumbnail(0.2f)
+                        .into(holder.imageView);
 
 
-           holder.imageButton_category.setOnClickListener(new View.OnClickListener() {
-               @Override
-               public void onClick(View v) {
-                   holder.text_category.performClick();
-               }
-           });
-
-            holder.text_category.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                    Bundle params = new Bundle();
-                    params.putString("activity", "Gridviewadapter-click");
-                    params.putString("button_name", "category_text");
-                    mFirebaseAnalytics.logEvent("category_text_click", params);
-
-                    String tv_string = holder.text_category.getText().toString();
-
-                    String category ="";
-
-                    if(tv_string.contains(","))
-                        category = tv_string.substring(0,tv_string.indexOf(",")).trim();
-                    else if(tv_string.contains("Trending"))
-                        category = "Home";
-                    else
-                        category = tv_string.trim();
-                    if (context instanceof MainActivity) {
-                        ((MainActivity)context).open_drawer(category);
+                holder.imageButton_category.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        holder.text_category.performClick();
                     }
+                });
+
+                holder.text_category.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        Bundle params = new Bundle();
+                        params.putString("activity", "Gridviewadapter-click");
+                        params.putString("button_name", "category_text");
+                        mFirebaseAnalytics.logEvent("category_text_click", params);
+
+                        String tv_string = holder.text_category.getText().toString();
+
+                        String category = "";
+
+                        if (tv_string.contains(","))
+                            category = tv_string.substring(0, tv_string.indexOf(",")).trim();
+                        else if (tv_string.contains("Trending"))
+                            category = "Home";
+                        else
+                            category = tv_string.trim();
+                        if (context instanceof MainActivity) {
+                            ((MainActivity) context).open_drawer(category);
+                        }
+
+                    }
+                });
+
+
+                holder.imageView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        Bundle params = new Bundle();
+                        params.putString("activity", "Gridviewadapter-click");
+                        params.putString("button_name", "image_click");
+                        mFirebaseAnalytics.logEvent("image_click", params);
+
+
+                        new open_swipeActivity(holder).execute(position);
+
+
+                        Log.i("tag12-iv-imgurl", allItemsUrl.get(position));
+                        Log.i("tag12-iv-video", all_document.get(position).get("video_link").toString());
+                        Log.i("tag12-iv-type", all_document.get(position).get("type").toString());
+
+
+                    }
+                });
+
+
+                holder.text_desc.setText(allDesc.get(position));
+
+
+                String category = all_category.get(position).replace('[', ' ').replace(']', ' ');
+                if (category.length() < 3)
+                    category = "Trending";
+
+                holder.text_category.setText(category);
+
+                holder.imageButton_category.setImageResource(getCategoryDrawable(category));
+
+                Log.i("tagg4 - getview ", "*******" + list_dislike.size() + "*****");
+
+                if (list_like.contains(all_Document_Reference.get(position))) {
+                    holder.btn_upvote.setTextOn(all_upvotes.get(position) + "");
+                    holder.btn_upvote.setTextOff(all_upvotes.get(position) + "");
+                    holder.btn_upvote.setText(all_upvotes.get(position) + "");
+                    holder.btn_upvote.setChecked(true);
+                    holder.btn_upvote.setTextColor(context.getResources().getColor(R.color.color_blue_button));
+                    holder.btn_upvote.setCompoundDrawablesWithIntrinsicBounds(R.drawable.thumbs_up_blue, 0, 0, 0);
+                } else {
+                    holder.btn_upvote.setTextOn(all_upvotes.get(position) + "");
+                    holder.btn_upvote.setTextOff(all_upvotes.get(position) + "");
+                    holder.btn_upvote.setText(all_upvotes.get(position) + "");
+                    holder.btn_upvote.setChecked(false);
+                    holder.btn_upvote.setCompoundDrawablesWithIntrinsicBounds(R.drawable.twotone_thumb_up_alt_black_24, 0, 0, 0);
+                    holder.btn_upvote.setTextColor(context.getResources().getColor(R.color.color_black));
 
                 }
-            });
 
+                if (list_dislike.contains(all_Document_Reference.get(position))) {
 
-
-            holder.imageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                    Bundle params = new Bundle();
-                    params.putString("activity", "Gridviewadapter-click");
-                    params.putString("button_name", "image_click");
-                    mFirebaseAnalytics.logEvent("image_click", params);
-
-
-
-                    new open_swipeActivity(holder).execute(position);
-
-
-                    Log.i("tag12-iv-imgurl",allItemsUrl.get(position));
-                    Log.i("tag12-iv-video",all_document.get(position).get("video_link").toString());
-                    Log.i("tag12-iv-type", all_document.get(position).get("type").toString());
-
+                    holder.btn_downvote.setText(all_downvotes.get(position) + "");
+                    holder.btn_downvote.setTextOn(all_downvotes.get(position) + "");
+                    holder.btn_downvote.setTextOff(all_downvotes.get(position) + "");
+                    holder.btn_downvote.setChecked(true);
+                    holder.btn_downvote.setTextColor(context.getResources().getColor(R.color.color_red_button));
+                    holder.btn_downvote.setCompoundDrawablesWithIntrinsicBounds(R.drawable.thumbs_down_red, 0, 0, 0);
+                } else {
+                    holder.btn_downvote.setText(all_downvotes.get(position) + "");
+                    holder.btn_downvote.setTextOn(all_downvotes.get(position) + "");
+                    holder.btn_downvote.setTextOff(all_downvotes.get(position) + "");
+                    holder.btn_downvote.setChecked(false);
+                    holder.btn_downvote.setCompoundDrawablesWithIntrinsicBounds(R.drawable.twotone_thumb_down_alt_black_24, 0, 0, 0);
+                    holder.btn_downvote.setTextColor(context.getResources().getColor(R.color.color_black));
 
                 }
-            });
+
+                String timestamp = all_timestamp.get(position);
+                Log.i("timestamp", timestamp);
+                String nanoseconds = "000";
+                try {
+                    nanoseconds = timestamp.substring(timestamp.indexOf("nanoseconds=") + 12, timestamp.indexOf("nanoseconds=") + 15);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
 
+                timestamp = timestamp.substring(timestamp.indexOf("seconds=") + 8, timestamp.indexOf(",")) + nanoseconds;
 
 
-            holder.text_desc.setText(allDesc.get(position));
+                holder.text_timestamp.setText(timeago(Long.parseLong(timestamp)));
+                Log.i("tagg1", timeago(Long.parseLong(timestamp)));
+
+                holder.btn_upvote.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
 
 
+                        Bundle params = new Bundle();
+                        params.putString("activity", "Gridviewadapter-click");
+                        params.putString("button_name", "upvote");
+                        mFirebaseAnalytics.logEvent("upvote_clicked", params);
+
+                        Log.i("tagg5 - before", position + "-" + all_upvotes);
+                        if (holder.btn_upvote.isChecked()) {
+                            holder.btn_upvote.setTextColor(context.getResources().getColor(R.color.color_blue_button));
+                            holder.btn_upvote.setCompoundDrawablesWithIntrinsicBounds(R.drawable.thumbs_up_blue, 0, 0, 0);
+
+                            all_upvotes.set(position, all_upvotes.get(position) + 1);
+
+                            holder.btn_upvote.setTextOn(all_upvotes.get(position) + "");
+                            holder.btn_upvote.setTextOff(all_upvotes.get(position) + "");
+                            holder.btn_upvote.setText(all_upvotes.get(position) + "");
+
+                            addLike(all_Document_Reference.get(position), 1, all_upvotes.get(position));
+
+                        } else {
+
+                            holder.btn_upvote.setTextColor(context.getResources().getColor(R.color.color_black));
+                            holder.btn_upvote.setCompoundDrawablesWithIntrinsicBounds(R.drawable.twotone_thumb_up_alt_black_24, 0, 0, 0);
+
+                            all_upvotes.set(position, all_upvotes.get(position) - 1);
+
+                            holder.btn_upvote.setTextOn(all_upvotes.get(position) + "");
+                            holder.btn_upvote.setTextOff(all_upvotes.get(position) + "");
+                            holder.btn_upvote.setText(all_upvotes.get(position) + "");
+
+                            addLike(all_Document_Reference.get(position), -1, all_upvotes.get(position));
+                        }
+                        Log.i("tagg5 - after", position + "-" + all_upvotes);
+
+                    }
+                });
 
 
+                holder.btn_downvote.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        Bundle params = new Bundle();
+                        params.putString("activity", "Gridviewadapter-click");
+                        params.putString("button_name", "downvote");
+                        mFirebaseAnalytics.logEvent("downvote_clicked", params);
+
+                        Log.i("tagg5 - before", position + "-" + all_downvotes);
+
+                        if (holder.btn_downvote.isChecked()) {
+                            holder.btn_downvote.setTextColor(context.getResources().getColor(R.color.color_red_button));
+                            holder.btn_downvote.setCompoundDrawablesWithIntrinsicBounds(R.drawable.thumbs_down_red, 0, 0, 0);
+
+                            all_downvotes.set(position, all_downvotes.get(position) + 1);
+
+                            holder.btn_downvote.setText(all_downvotes.get(position) + "");
+                            holder.btn_downvote.setTextOn(all_downvotes.get(position) + "");
+                            holder.btn_downvote.setTextOff(all_downvotes.get(position) + "");
+
+                            addDisLike(all_Document_Reference.get(position), 1, all_downvotes.get(position));
+
+                        } else {
+                            holder.btn_downvote.setTextColor(context.getResources().getColor(R.color.color_black));
+                            holder.btn_downvote.setCompoundDrawablesWithIntrinsicBounds(R.drawable.twotone_thumb_down_alt_black_24, 0, 0, 0);
+
+                            all_downvotes.set(position, all_downvotes.get(position) - 1);
+
+                            holder.btn_downvote.setText(all_downvotes.get(position) + "");
+                            holder.btn_downvote.setTextOn(all_downvotes.get(position) + "");
+                            holder.btn_downvote.setTextOff(all_downvotes.get(position) + "");
+
+                            addDisLike(all_Document_Reference.get(position), -1, all_downvotes.get(position));
+
+                        }
+                        Log.i("tagg5 - after", position + "-" + all_downvotes);
+
+                    }
+                });
 
 
+                holder.btn_save.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        Bundle params = new Bundle();
+                        params.putString("activity", "Gridviewadapter-click");
+                        params.putString("button_name", "save");
+                        mFirebaseAnalytics.logEvent("save_clicked", params);
+
+                        Thread t = new Thread(new Runnable() {
+                            public void run() {
+                                String fileName = Environment.getExternalStorageDirectory().toString() + "/Tamil GAG/";
+                                new File(fileName).mkdirs();
+
+                                if (all_document.get(position).get("type").toString().contains("image"))
+                                    save(holder);
+                                else if (all_document.get(position).get("type").toString().contains("video"))
+                                    new Share_Video_Async(holder.btn_share, "save").execute(all_document.get(position).get("video_link").toString(), Environment.getExternalStorageDirectory() + "/Tamil GAG/" + "video_" + System.currentTimeMillis() + ".mp4");
 
 
-            String category = all_category.get(position).replace('[', ' ').replace(']', ' ');
-            if (category.length() < 3)
-                category = "Trending";
+                            }
+                        });
 
-            holder.text_category.setText(category);
+                        t.start();
 
-            holder.imageButton_category.setImageResource(getCategoryDrawable(category));
 
-            Log.i("tagg4 - getview ", "*******" + list_dislike.size() + "*****");
+                    }
+                });
 
-            if (list_like.contains(all_Document_Reference.get(position))) {
-                holder.btn_upvote.setTextOn(all_upvotes.get(position) + "");
-                holder.btn_upvote.setTextOff(all_upvotes.get(position) + "");
-                holder.btn_upvote.setText(all_upvotes.get(position) + "");
-                holder.btn_upvote.setChecked(true);
-                holder.btn_upvote.setTextColor(context.getResources().getColor(R.color.color_blue_button));
-                holder.btn_upvote.setCompoundDrawablesWithIntrinsicBounds(R.drawable.thumbs_up_blue, 0, 0, 0);
-            } else {
-                holder.btn_upvote.setTextOn(all_upvotes.get(position) + "");
-                holder.btn_upvote.setTextOff(all_upvotes.get(position) + "");
-                holder.btn_upvote.setText(all_upvotes.get(position) + "");
-                holder.btn_upvote.setChecked(false);
-                holder.btn_upvote.setCompoundDrawablesWithIntrinsicBounds(R.drawable.twotone_thumb_up_alt_black_24, 0, 0, 0);
-                holder.btn_upvote.setTextColor(context.getResources().getColor(R.color.color_black));
+                holder.btn_share.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Bundle params = new Bundle();
+                        params.putString("activity", "Gridviewadapter-click");
+                        params.putString("button_name", "share");
+                        mFirebaseAnalytics.logEvent("share_clicked", params);
 
-            }
+                        Thread t = new Thread(new Runnable() {
+                            public void run() {
 
-            if (list_dislike.contains(all_Document_Reference.get(position))) {
+                                if (all_document.get(position).get("type").toString().contains("image"))
+                                    share(holder);
 
-                holder.btn_downvote.setText(all_downvotes.get(position) + "");
-                holder.btn_downvote.setTextOn(all_downvotes.get(position) + "");
-                holder.btn_downvote.setTextOff(all_downvotes.get(position) + "");
-                holder.btn_downvote.setChecked(true);
-                holder.btn_downvote.setTextColor(context.getResources().getColor(R.color.color_red_button));
-                holder.btn_downvote.setCompoundDrawablesWithIntrinsicBounds(R.drawable.thumbs_down_red, 0, 0, 0);
+                                else if (all_document.get(position).get("type").toString().contains("video"))
+                                    new Share_Video_Async(holder.btn_share, "share").execute(all_document.get(position).get("video_link").toString(), context.getExternalCacheDir() + "video_cache.mp4");
+
+
+                            }
+                        });
+
+                        t.start();
+
+
+                    }
+                });
+
+
+                holder.ib_popup_menu.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //  dialog();
+                        report_dialog(allItemsUrl.get(position), all_timestamp.get(position), all_Document_Reference.get(position));
+
+                    }
+                });
+
             }
             else
             {
-                holder.btn_downvote.setText(all_downvotes.get(position) + "");
-                holder.btn_downvote.setTextOn(all_downvotes.get(position) + "");
-                holder.btn_downvote.setTextOff(all_downvotes.get(position) + "");
-                holder.btn_downvote.setChecked(false);
-                holder.btn_downvote.setCompoundDrawablesWithIntrinsicBounds(R.drawable.twotone_thumb_down_alt_black_24, 0, 0, 0);
-                holder.btn_downvote.setTextColor(context.getResources().getColor(R.color.color_black));
+                Log.w("tag13", position + " NULL");
+                holder.cardView.setVisibility(View.GONE);
+                AdRequest adRequest = new AdRequest.Builder().build();
+
+                holder.ad_native.loadAd(adRequest);
+                holder.ad_native.setVisibility(View.VISIBLE);
+
 
             }
-
-            String timestamp = all_timestamp.get(position);
-            Log.i("timestamp", timestamp);
-            String nanoseconds = "000";
-            try {
-                nanoseconds = timestamp.substring(timestamp.indexOf("nanoseconds=") + 12, timestamp.indexOf("nanoseconds=") + 15);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-
-            timestamp = timestamp.substring(timestamp.indexOf("seconds=") + 8, timestamp.indexOf(",")) + nanoseconds;
-
-
-            holder.text_timestamp.setText(timeago(Long.parseLong(timestamp)));
-            Log.i("tagg1", timeago(Long.parseLong(timestamp)));
-
-            holder.btn_upvote.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-
-                    Bundle params = new Bundle();
-                    params.putString("activity", "Gridviewadapter-click");
-                    params.putString("button_name", "upvote");
-                    mFirebaseAnalytics.logEvent("upvote_clicked", params);
-
-                    Log.i("tagg5 - before", position + "-" + all_upvotes);
-                    if (holder.btn_upvote.isChecked()) {
-                        holder.btn_upvote.setTextColor(context.getResources().getColor(R.color.color_blue_button));
-                        holder.btn_upvote.setCompoundDrawablesWithIntrinsicBounds(R.drawable.thumbs_up_blue, 0, 0, 0);
-
-                        all_upvotes.set(position, all_upvotes.get(position) + 1);
-
-                        holder.btn_upvote.setTextOn(all_upvotes.get(position) + "");
-                        holder.btn_upvote.setTextOff(all_upvotes.get(position) + "");
-                        holder.btn_upvote.setText(all_upvotes.get(position) + "");
-
-                        addLike(all_Document_Reference.get(position),1, all_upvotes.get(position));
-
-                    } else {
-
-                        holder.btn_upvote.setTextColor(context.getResources().getColor(R.color.color_black));
-                        holder.btn_upvote.setCompoundDrawablesWithIntrinsicBounds(R.drawable.twotone_thumb_up_alt_black_24, 0, 0, 0);
-
-                        all_upvotes.set(position, all_upvotes.get(position) - 1);
-
-                        holder.btn_upvote.setTextOn(all_upvotes.get(position) + "");
-                        holder.btn_upvote.setTextOff(all_upvotes.get(position) + "");
-                        holder.btn_upvote.setText(all_upvotes.get(position) + "");
-
-                        addLike(all_Document_Reference.get(position), -1,all_upvotes.get(position));
-                    }
-                    Log.i("tagg5 - after", position + "-" + all_upvotes);
-
-                }
-            });
-
-
-            holder.btn_downvote.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                    Bundle params = new Bundle();
-                    params.putString("activity", "Gridviewadapter-click");
-                    params.putString("button_name", "downvote");
-                    mFirebaseAnalytics.logEvent("downvote_clicked", params);
-
-                    Log.i("tagg5 - before", position + "-" + all_downvotes);
-
-                    if(holder.btn_downvote.isChecked())
-                    {
-                        holder.btn_downvote.setTextColor(context.getResources().getColor(R.color.color_red_button));
-                        holder.btn_downvote.setCompoundDrawablesWithIntrinsicBounds(R.drawable.thumbs_down_red, 0, 0, 0);
-
-                        all_downvotes.set(position, all_downvotes.get(position) + 1);
-
-                        holder.btn_downvote.setText(all_downvotes.get(position) + "");
-                        holder.btn_downvote.setTextOn(all_downvotes.get(position) + "");
-                        holder.btn_downvote.setTextOff(all_downvotes.get(position) + "");
-
-                        addDisLike(all_Document_Reference.get(position),1, all_downvotes.get(position));
-
-                    }
-                    else
-                    {
-                        holder.btn_downvote.setTextColor(context.getResources().getColor(R.color.color_black));
-                        holder.btn_downvote.setCompoundDrawablesWithIntrinsicBounds(R.drawable.twotone_thumb_down_alt_black_24, 0, 0, 0);
-
-                        all_downvotes.set(position, all_downvotes.get(position) - 1);
-
-                        holder.btn_downvote.setText(all_downvotes.get(position) + "");
-                        holder.btn_downvote.setTextOn(all_downvotes.get(position) + "");
-                        holder.btn_downvote.setTextOff(all_downvotes.get(position) + "");
-
-                        addDisLike(all_Document_Reference.get(position),-1, all_downvotes.get(position));
-
-                    }
-                    Log.i("tagg5 - after", position + "-" + all_downvotes);
-
-                }
-            });
-
-
-
-
-            holder.btn_save.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                    Bundle params = new Bundle();
-                    params.putString("activity", "Gridviewadapter-click");
-                    params.putString("button_name", "save");
-                    mFirebaseAnalytics.logEvent("save_clicked", params);
-
-                    Thread t = new Thread(new Runnable() {
-                        public void run() {
-                            String fileName = Environment.getExternalStorageDirectory().toString() + "/Tamil GAG/";
-                            new File(fileName).mkdirs();
-
-                            if(all_document.get(position).get("type").toString().contains("image"))
-                               save(holder);
-                            else if(all_document.get(position).get("type").toString().contains("video"))
-                                new Share_Video_Async(holder.btn_share,"save").execute(all_document.get(position).get("video_link").toString(), Environment.getExternalStorageDirectory()+"/Tamil GAG/" + "video_"+ System.currentTimeMillis()+".mp4");
-
-
-                        }
-                    });
-
-                    t.start();
-
-
-
-
-
-                }
-            });
-
-            holder.btn_share.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Bundle params = new Bundle();
-                    params.putString("activity", "Gridviewadapter-click");
-                    params.putString("button_name", "share");
-                    mFirebaseAnalytics.logEvent("share_clicked", params);
-
-                    Thread t = new Thread(new Runnable() {
-                        public void run() {
-
-                            if(all_document.get(position).get("type").toString().contains("image"))
-                                share(holder);
-
-                            else if(all_document.get(position).get("type").toString().contains("video"))
-                                new Share_Video_Async(holder.btn_share,"share").execute(all_document.get(position).get("video_link").toString(),context.getExternalCacheDir() + "video_cache.mp4");
-
-
-
-                        }
-                    });
-
-                    t.start();
-
-
-                    }
-            });
-
-
-            holder.ib_popup_menu.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //  dialog();
-                    report_dialog(allItemsUrl.get(position), all_timestamp.get(position),all_Document_Reference.get(position));
-
-                }
-            });
-
-
         }
+            return view;
 
-        return view;
+
+
+
 
     }
+
+
+
+
     class Share_Video_Async extends AsyncTask<String,Integer,String> {
         Snackbar snackbar;
         private View rootView;
@@ -998,42 +1012,6 @@ try {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     private int getCategoryDrawable(String category) {
 
         if (category.toLowerCase().contains("funny"))
@@ -1231,6 +1209,8 @@ class ViewHolder {
     Button btn_save;
     ImageButton ib_popup_menu;
     DrawerLayout drawerLayout;
+    AdView ad_native;
+    CardView cardView;
 }
 
 

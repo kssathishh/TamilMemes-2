@@ -100,7 +100,7 @@ public class FragmentTrending extends Fragment {
             public void onScroll(AbsListView view, int firstVisibleItem,
                                  int visibleItemCount, int totalItemCount) {
 
-                if(firstVisibleItem+visibleItemCount == (totalItemCount-2) && totalItemCount!=0)
+                if(firstVisibleItem+visibleItemCount == (totalItemCount-3) && totalItemCount!=0)
                 {
                     if(flag_loading == false && end == false)
                     {
@@ -109,7 +109,7 @@ public class FragmentTrending extends Fragment {
 
                         Bundle params = new Bundle();
                         params.putString("activity", "FragmentTrending");
-                        params.putString("event_name", "Add 10 more itmes");
+                        params.putString("event_name", "Add 10 more items");
                         mFirebaseAnalytics.logEvent("Fragment_Trending_10_more", params);
 
                     }
@@ -194,6 +194,17 @@ try{
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
 
                         if (task.isSuccessful()) {
+
+                            //for loading Native ads
+                            all_document.add(null);
+                            allDrawableImages.add(null);
+                            allDocumentReference.add(null);
+                            allDesc.add(null);
+                            all_category.add(null);
+                            all_timestamp.add(null);
+                            all_upvotes.add(null);
+                            all_downvotes.add(null);
+
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 Log.d("TAG1", document.get("link").toString());
                                 all_document.add(document);

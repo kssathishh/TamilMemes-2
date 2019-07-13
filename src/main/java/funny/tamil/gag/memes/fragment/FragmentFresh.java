@@ -119,7 +119,7 @@ public class FragmentFresh extends Fragment {
             public void onScroll(AbsListView view, int firstVisibleItem,
                                  int visibleItemCount, int totalItemCount) {
 
-                if(firstVisibleItem+visibleItemCount == (totalItemCount-2) && totalItemCount!=0)
+                if(firstVisibleItem+visibleItemCount == (totalItemCount-3) && totalItemCount!=0)
                 {
                     if(flag_loading == false && end == false)
                     {
@@ -127,7 +127,7 @@ public class FragmentFresh extends Fragment {
                         additems(category_public);
                         Bundle params = new Bundle();
                         params.putString("activity", "FragmentFresh");
-                        params.putString("event_name", "Add 10 more itmes");
+                        params.putString("event_name", "Add 10 more items");
                         mFirebaseAnalytics.logEvent("Fragment_Fresh_10_more", params);
                     }
                 }
@@ -260,8 +260,20 @@ try {
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
 
                     if (task.isSuccessful()) {
+                            //for loading Native ads
+                            all_document.add(null);
+                            allDrawableImages.add(null);
+                            allDocumentReference.add(null);
+                            allDesc.add(null);
+                            all_category.add(null);
+                            all_timestamp.add(null);
+                            all_upvotes.add(null);
+                            all_downvotes.add(null);
+
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            Log.d("TAG1", document.get("link").toString());
+                         //   Log.d("TAG1", document.get("link").toString());
+
+
 
                             all_document.add(document);
 
@@ -327,7 +339,7 @@ try {
             allDocumentReference.clear();
             allDrawableImages.clear();
             allDesc.clear();
-all_document.clear();
+            all_document.clear();
             all_category.clear();
             all_timestamp.clear();
             all_upvotes.clear();
@@ -422,27 +434,30 @@ else {
                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
 
                                 if (task.isSuccessful()) {
+
                                     for (QueryDocumentSnapshot document : task.getResult()) {
 
-                                        all_document.add(document);
 
-                                        allDrawableImages.add(document.get("link").toString());
-                                        allDocumentReference.add(document.getReference().getPath());
-                                        if (document.get("description") == null)
-                                            allDesc.add("");
-                                        else
-                                            allDesc.add(document.get("description").toString());
+    all_document.add(document);
 
-                                        all_category.add(document.get("category").toString() + "");
-                                        all_timestamp.add(document.get("time").toString());
-                                        all_upvotes.add(Integer.parseInt(document.get("upvote") + ""));
-                                        all_downvotes.add(Integer.parseInt(document.get("downvote") + ""));
+    allDrawableImages.add(document.get("link").toString());
+    allDocumentReference.add(document.getReference().getPath());
+    if (document.get("description") == null)
+        allDesc.add("");
+    else
+        allDesc.add(document.get("description").toString());
+
+    all_category.add(document.get("category").toString() + "");
+    all_timestamp.add(document.get("time").toString());
+    all_upvotes.add(Integer.parseInt(document.get("upvote") + ""));
+    all_downvotes.add(Integer.parseInt(document.get("downvote") + ""));
+
 
                                     }
                                     gridViewAdapter = new GridViewAdapter(MainActivity.getInstance(), allDrawableImages, allDesc, all_category, all_timestamp, all_upvotes, all_downvotes, allDocumentReference,all_document);
                                     Log.w("tag22-f2", allDrawableImages.size() + "");
 
-                                    gridView.setAdapter(gridViewAdapter);
+                                    gridView.setAdapter(   gridViewAdapter);
 
                                     pullToRefresh.setRefreshing(false);
                                     btn_new_post.setVisibility(View.GONE);
