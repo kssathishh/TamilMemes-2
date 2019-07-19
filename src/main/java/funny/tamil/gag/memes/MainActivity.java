@@ -12,6 +12,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -103,6 +104,8 @@ public class MainActivity extends AppCompatActivity
 
     String category="Home";
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -163,8 +166,7 @@ public class MainActivity extends AppCompatActivity
                     104);
         }
 
-
-    }
+          }
 
 
 
@@ -231,21 +233,32 @@ public class MainActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            if (doubleBackToExitPressedOnce) {
-                super.onBackPressed();
-                return;
+            SharedPreferences pref = getApplicationContext().getSharedPreferences("rate_pref", 0);
+            Log.i("Rated - ",pref.getBoolean("rated",false)+"");
+
+
+            if (!pref.getBoolean("rated", false))
+            {
+                rating_alert("exit");
             }
+            else {
 
-            this.doubleBackToExitPressedOnce = true;
-            Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show();
-
-            new Handler().postDelayed(new Runnable() {
-
-                @Override
-                public void run() {
-                    doubleBackToExitPressedOnce=false;
+                if (doubleBackToExitPressedOnce) {
+                    super.onBackPressed();
+                    return;
                 }
-            }, 2000);
+
+                this.doubleBackToExitPressedOnce = true;
+                Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show();
+
+                new Handler().postDelayed(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        doubleBackToExitPressedOnce = false;
+                    }
+                }, 2000);
+            }
         }
     }
 
@@ -275,7 +288,7 @@ public class MainActivity extends AppCompatActivity
             return true;
         }
         if (id == R.id.action_rate) {
-            rating_alert("Through Low Rating");
+            rating_alert("Through Rating");
             return true;
         }
         if (id == R.id.action_share_app) {
@@ -352,7 +365,7 @@ public class MainActivity extends AppCompatActivity
         else if (id == R.id.nav_wtf)
             category = "WTF";
         else if (id == R.id.nav_gif)
-            category = "GIF";
+            category = "GIF / Video";
         else if (id == R.id.nav_other)
             category = "Others";
 //---------------------------------------------------------------
@@ -430,6 +443,9 @@ public class MainActivity extends AppCompatActivity
 
 
     private void exit() {
+
+
+
         finish();
     }
 
@@ -452,13 +468,24 @@ public class MainActivity extends AppCompatActivity
 
     public void rating_alert(final String feedback_text){
 
+
+
+
         // TODO Auto-generated method stub
         final AlertDialog alertadd = new AlertDialog.Builder(
                 MainActivity.this).create();
 
         alertadd.setTitle("Like the App?");
 
-
+        if(feedback_text.contains("exit"))
+            alertadd.setButton(DialogInterface.BUTTON_NEGATIVE, "Exit", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    alertadd.dismiss();
+                    finish();
+                }
+            });
+        else
             alertadd.setButton(DialogInterface.BUTTON_NEGATIVE, "CANCEL", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -470,7 +497,8 @@ public class MainActivity extends AppCompatActivity
 
 
 
-    LayoutInflater factory = LayoutInflater.from(MainActivity.this);
+
+        LayoutInflater factory = LayoutInflater.from(MainActivity.this);
     final View view = factory.inflate(R.layout.dialog_rate, null);
 
     RatingBar rb =  view.findViewById(R.id.ratingBar);
@@ -479,6 +507,21 @@ public class MainActivity extends AppCompatActivity
     rb.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
         @Override
         public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
+
+
+            SharedPreferences pref = getApplicationContext().getSharedPreferences("rate_pref", 0);
+
+            SharedPreferences.Editor editor = pref.edit();
+            editor.putBoolean("rated", true);
+            editor.apply();
+            Log.i("Rated1 - ",pref.getBoolean("rated",false)+"");
+
+
+            Bundle params = new Bundle();
+            params.putString("activity", "MainActivity-rate-"+feedback_text);
+            mFirebaseAnalytics.logEvent("rate_"+ Math.round(rating), params);
+
+
             Log.i("rating", rating + "-" + getPackageName());
             if (rating >= 3.5)
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + getPackageName())));

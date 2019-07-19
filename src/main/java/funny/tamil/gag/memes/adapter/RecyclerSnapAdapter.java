@@ -40,7 +40,7 @@ public class RecyclerSnapAdapter extends RecyclerView.Adapter<RecyclerSnapAdapte
         ua.download_url_list.clear();
         ua.download_video_url_list.clear();
 
-        Log.i("Logg4-contructor",apps.get(0));
+//        Log.i("Logg4-contructor",apps.get(0));
 
 
     }

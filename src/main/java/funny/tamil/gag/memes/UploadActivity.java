@@ -48,6 +48,7 @@ import android.widget.TextView;
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
@@ -64,6 +65,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -131,6 +134,10 @@ public class UploadActivity extends AppCompatActivity {
                 Uri uri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
 
                 try {
+
+
+
+
                     BitmapFactory.Options options = new BitmapFactory.Options();
                     options.inSampleSize = 1;
                     Bitmap thumb = ThumbnailUtils.createVideoThumbnail(getPath(uri), MediaStore.Images.Thumbnails.FULL_SCREEN_KIND);
@@ -144,7 +151,7 @@ public class UploadActivity extends AppCompatActivity {
                     bmpTofile(thumbnail, f);
                     pathList.add(f.getPath());
                     video_pathList.add(uri.toString());
-
+Log.i("tag14",uri.toString() +"--"+f.getPath());
 
                 }catch (Exception e){e.printStackTrace();}
             }
@@ -190,6 +197,11 @@ public class UploadActivity extends AppCompatActivity {
 
             }
         } else {
+
+            pathList.clear();
+            video_pathList.clear();
+            download_url_list.clear();
+            download_video_url_list.clear();
 
 
 
@@ -371,7 +383,7 @@ public class UploadActivity extends AppCompatActivity {
                                 if(uploaded.size() == download_url_list.size())
                                 {
                                     progressDialog.dismiss();
-                                    AlertDialog.Builder builder = new AlertDialog.Builder(UploadActivity.this);
+                                    final AlertDialog.Builder builder = new AlertDialog.Builder(UploadActivity.this);
                                     builder.setMessage("Memes uploaded Successfully.")
                                             .setTitle("Upload Successful")
                                             .setIcon(R.drawable.success);
@@ -387,6 +399,7 @@ public class UploadActivity extends AppCompatActivity {
                                     dialog.show();
 
                                     new CountDownTimer(3000, 1000) {
+
                                         @Override
                                         public void onTick(long millisUntilFinished) {
 
@@ -440,6 +453,7 @@ public class UploadActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 finish();
+
             }
         });
         builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -506,9 +520,9 @@ public class UploadActivity extends AppCompatActivity {
         download_url_list.clear();
         download_video_url_list.clear();
 
-        Log.i("Logg4 - img_path",img_pathlist.get(0));
+//        Log.i("Logg4 - img_path",img_pathlist.get(0));
         ArrayList<String> apps = img_pathlist;
-        Log.i("Logg4 - apps",apps.get(0));
+//        Log.i("Logg4 - apps",apps.get(0));
         RecyclerSnapAdapter adapter = null;
         SnapAdapter snapAdapter = new SnapAdapter();
         if (mHorizontal) {
@@ -990,8 +1004,8 @@ if(upload_type.contains("video")) {
         @Override
         protected String doInBackground(String... strings) {
 
-            Log.i("upload_type2-1",strings[0]+"---"+strings[2]);
-            Log.i("upload_type2-2",strings[0]+"---"+getPath(Uri.parse(strings[0])));
+            //Log.i("upload_type2-1",strings[0]+"---"+strings[2]);
+           // Log.i("upload_type2-2",strings[0]+"---"+getPath(Uri.parse(strings[0])));
 
 
             if(strings[2].contains("video"))
@@ -1153,15 +1167,65 @@ if(upload_type.contains("video")) {
             String[] projection = {MediaStore.Images.Media.DATA};
             Cursor cursor = managedQuery(uri, projection, null, null, null);
             if (cursor != null) {
-                // HERE YOU WILL GET A NULLPOINTER IF CURSOR IS NULL
-                // THIS CAN BE, IF YOU USED OI FILE MANAGER FOR PICKING THE MEDIA
+
                 int column_index = cursor
                         .getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
                 cursor.moveToFirst();
                 return cursor.getString(column_index);
-            } else
+            } else {
+
+
+                return uri.toString();
+
+            }
+        } catch (Exception e) {
+            Log.i("tag14", "exception");
+            try {
+                InputStream inputStream = getContentResolver().openInputStream(uri);
+                return copyInputStreamToFile(inputStream, new File(getCacheDir(), "uritofile.mp4"));
+
+            } catch (Exception e1) {
+                e1.printStackTrace();
                 return null;
-        }catch (Exception e){return null;}
+            }
+
+        }
     }
 
+
+    private String copyInputStreamToFile(InputStream in, File file) {
+        OutputStream out = null;
+
+        try {
+            out = new FileOutputStream(file);
+            byte[] buf = new byte[1024];
+            int len;
+            while((len=in.read(buf))>0){
+                out.write(buf,0,len);
+            }
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        finally {
+            // Ensure that the InputStreams are closed even if there's an exception.
+            try {
+                if ( out != null ) {
+                    out.close();
+                }
+
+                // If you want to close the "in" InputStream yourself then remove this
+                // from here but ensure that you close it yourself eventually.
+                in.close();
+            }
+            catch ( IOException e ) {
+                e.printStackTrace();
+            }
+        }
+
+        return file.getPath();
+
+
+    }
 }
